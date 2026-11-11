@@ -9,14 +9,15 @@ Hier entsteht eine allgemein nutzbare Agent-Skill zur Recherche von Stellen übe
 - Vor Änderungen vorhandene Dateien und den Git-Status prüfen; fremde und bereits vorhandene Änderungen erhalten.
 - Anforderungen und technische Entscheidungen von Annahmen unterscheiden. Größere Änderungen vor der Umsetzung mit einem nachvollziehbaren Entwurf vorbereiten.
 - Skill-Texte sowie Architektur- und Designdokumentation auf Deutsch verfassen. Code einschließlich Bezeichnern, Kommentaren, Docstrings und Fehlermeldungen auf Englisch schreiben; vorgegebene externe API-Feldnamen und Parameter unverändert übernehmen.
-- Auf eigenen Arbeitsbranches nach eigenem Ermessen committen und pushen. Veröffentlichungen, Bewerbungen und Kontaktaufnahmen erfordern einen ausdrücklichen Auftrag.
+- Auf eigenen Arbeitsbranches nach eigenem Ermessen committen und pushen.
+- Veröffentlichungen, Bewerbungen und Kontaktaufnahmen erfordern einen ausdrücklichen Auftrag.
 
 ## Branches und Pull Requests
 
 - Änderungen auf einem eigenen Branch vorbereiten; nicht direkt auf `main` arbeiten oder dorthin pushen.
 - Änderungen über einen Pull Request zur Prüfung vorlegen. Der Nutzer entscheidet über Freigabe und Merge; Review-Rückmeldungen auf dem PR-Branch bearbeiten. Nicht eigenständig mergen.
 - KI-Unterstützung bei von Codex erstellten Commits durch den Trailer `Assisted-by: OpenAI Codex` kenntlich machen. Im Pull Request kurz darstellen, welche Umsetzung von Codex stammt und welche wesentlichen Vorgaben oder Entscheidungen vom Nutzer kommen.
-- Für GitHub-Aktionen die vorgesehene GitHub-App-Identität verwenden, sobald ihre Anbindung eingerichtet und geprüft ist. App- und Commit-Identität nicht als identisch voraussetzen. Bis dahin den Status transparent halten.
+- Für GitHub-Aktionen die vorgesehene GitHub-App-Identität verwenden.
 
 ## Entwicklung
 
