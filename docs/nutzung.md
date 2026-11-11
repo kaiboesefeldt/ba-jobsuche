@@ -3,11 +3,13 @@
 Python 3.10 oder neuer; zur Laufzeit ist nur die Standardbibliothek erforderlich. Vom Projektverzeichnis aus (bei einer separat bereitgestellten Skill den absoluten Pfad zu `scripts/jobsuche.py` verwenden):
 
 ```sh
-python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Softwareentwickler' --wo 'Berlin'
+python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Softwareentwickler' --wo 'Rostock:50'
 python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Python' --size 50 --max-pages 20
 python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Python' --homeoffice 50%
 python3 skills/ba-jobsuche/scripts/jobsuche.py detail 'REFERENZNUMMER'
 ```
+
+`--wo 'Rostock:50'` übergibt `wo=Rostock` und `umkreis=50` (Kilometer); `query` enthält beide Parameter. Akzeptiert werden ein nicht leerer Ort und eine ganze Zahl aus ASCII-Ziffern von 0 bis 200, ohne Leerzeichen um die Zahl. Ungültige Angaben erzeugen einen Eingabefehler ohne Anfrage. Ohne Doppelpunkt wird der Ort unverändert übergeben; ohne `--wo` wird kein Ort vorgegeben. Die [Community-API-Dokumentation](https://github.com/bundesAPI/jobsuche-api) beschreibt `umkreis` in Kilometern um `wo`; die [BA-Hilfe zur Stellensuche](https://jobboerse.arbeitsagentur.de/vamJB/hilfe/de/AS/betreut/1080.html) nennt für ihre Oberfläche bis zu 200 km. Die Clientgrenze ist vorsichtig gewählt und keine Zusage für die inoffiziell dokumentierte API.
 
 Der optionale Schalter `--homeoffice` akzeptiert `0%`, `25%`, `50%` oder `100%`; ohne Wert gilt `100%`. Andere Werte sind ein Eingabefehler. Die Werte werden auf `homeoffice=prozentual_0`, `prozentual_25`, `prozentual_50` beziehungsweise `prozentual_100` abgebildet. Ohne Schalter wird kein Homeoffice-Filter gesetzt; ohne `--wo` wird kein Ort vorgegeben. Live-Vergleiche sprechen für einen Mindestanteil, die genaue Semantik und Vollständigkeit sind jedoch nicht verbindlich dokumentiert. Angaben und Bedingungen in den Stellendetails prüfen; fehlende Angaben bleiben unklar.
 

@@ -39,6 +39,10 @@ class OutputSchemaTests(unittest.TestCase):
         outputs = [
             self.output(["search", "--was", "x"], {"maxErgebnisse": 0}),
             self.output(
+                ["search", "--was", "x", "--wo", "Rostock:50", "--homeoffice"],
+                {"maxErgebnisse": 0},
+            ),
+            self.output(
                 ["search", "--was", "x", "--max-pages", "1"],
                 {
                     "maxErgebnisse": 101,

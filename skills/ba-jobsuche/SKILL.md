@@ -12,9 +12,11 @@ Die Skill benötigt Python 3.10 oder neuer und Netzwerkzugriff auf die Jobsuche 
 Suche Stellen und rufe Details mit `scripts/jobsuche.py` ab:
 
 ```sh
-python3 scripts/jobsuche.py search --was 'Suchbegriff' --wo 'Ort' --homeoffice 25%
+python3 scripts/jobsuche.py search --was 'Suchbegriff' --wo 'Rostock:50' --homeoffice 25%
 python3 scripts/jobsuche.py detail 'Referenznummer'
 ```
+
+`--wo` akzeptiert einen Ort oder `Ort:Kilometer` mit ganzzahligem Umkreis von 0 bis 200 km; ohne `--wo` wird kein Ort vorgegeben. Ungültige Angaben führen zu einem Eingabefehler. Die API-Grenzen sind nicht verbindlich dokumentiert.
 
 `--homeoffice` akzeptiert optional `0%`, `25%`, `50%` oder `100%`; ohne Wert gilt `100%`.
 

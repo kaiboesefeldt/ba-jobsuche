@@ -14,12 +14,24 @@ class Parser(argparse.ArgumentParser):
         raise ValueError(message)
 
 
+def parse_location(value: str) -> dict[str, str | int]:
+    if ":" not in value:
+        return {"wo": value}
+    location, radius = value.split(":", 1)
+    if not location.strip() or not radius.isascii() or not radius.isdecimal():
+        raise ValueError("Location radius must be a whole number from 0 to 200 km")
+    radius = radius.lstrip("0") or "0"
+    if len(radius) > 3 or int(radius) > 200:
+        raise ValueError("Location radius must be a whole number from 0 to 200 km")
+    return {"wo": location, "umkreis": int(radius)}
+
+
 def search_command(args: argparse.Namespace) -> dict[str, Any]:
     if not args.was.strip() or (args.wo is not None and not args.wo.strip()):
         raise ValueError("Search text and location must not be empty")
     query = {"was": args.was}
     if args.wo:
-        query["wo"] = args.wo
+        query.update(parse_location(args.wo))
     if args.homeoffice:
         query["homeoffice"] = f"prozentual_{args.homeoffice[:-1]}"
     return {"query": query, **search(fetch_search, query, args.size, args.max_pages)}
@@ -47,7 +59,10 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
     find = sub.add_parser("search", help="Search job offers")
     find.add_argument("--was", required=True, help="Search terms (required)")
-    find.add_argument("--wo", help="Location; omit for no location filter")
+    find.add_argument(
+        "--wo",
+        help="Location or location:radius in km (0-200); omit for no location filter",
+    )
     find.add_argument(
         "--homeoffice",
         nargs="?",

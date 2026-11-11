@@ -120,6 +120,53 @@ class CliTests(unittest.TestCase):
             json.loads(out.getvalue())["results"], response["ergebnisliste"]
         )
 
+    def test_location_radius_is_sent_and_reported(self):
+        for value, location, radius in (
+            ("Rostock:50", "Rostock", 50),
+            ("Berlin:0", "Berlin", 0),
+            ("Berlin:200", "Berlin", 200),
+            ("Berlin:00050", "Berlin", 50),
+            ("Berlin:000", "Berlin", 0),
+        ):
+            with (
+                self.subTest(value=value),
+                patch(
+                    "ba_jobsuche.cli.fetch_search", return_value={"maxErgebnisse": 0}
+                ) as fetch,
+                contextlib.redirect_stdout(io.StringIO()) as out,
+            ):
+                self.assertEqual(main(["search", "--was", "Python", "--wo", value]), 0)
+                expected = {"was": "Python", "wo": location, "umkreis": radius}
+                self.assertEqual(json.loads(out.getvalue())["query"], expected)
+                self.assertEqual(
+                    fetch.call_args.args[0], {**expected, "page": 1, "size": 100}
+                )
+
+    def test_invalid_radius_never_sends_request(self):
+        for value in (
+            ":50",
+            " :50",
+            "Berlin:",
+            "Berlin:-1",
+            "Berlin:201",
+            "Berlin:1.5",
+            "Berlin:9999",
+            "Berlin:５０",
+            "Berlin:abc",
+            "Berlin:50:20",
+            "Berlin: 50",
+        ):
+            with (
+                self.subTest(value=value),
+                patch("ba_jobsuche.cli.fetch_search") as fetch,
+                contextlib.redirect_stdout(io.StringIO()) as out,
+            ):
+                self.assertEqual(main(["search", "--was", "Python", "--wo", value]), 1)
+                self.assertEqual(
+                    json.loads(out.getvalue())["error"]["code"], "invalid_input"
+                )
+                fetch.assert_not_called()
+
     def test_detail_success(self):
         out = io.StringIO()
         with (
