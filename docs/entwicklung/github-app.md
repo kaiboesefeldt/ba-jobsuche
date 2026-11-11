@@ -13,11 +13,23 @@ IDs, Berechtigungen und Installationsumfang können sich ändern. Der Schlüssel
 
 ## Authentifizierung und Aufrufe
 
-1. Mit dem privaten Schlüssel ein kurzlebiges, mit RS256 signiertes App-JWT erzeugen. Für `iss` die App-ID verwenden und `iat` sowie `exp` entsprechend den [GitHub-Vorgaben](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-json-web-token-jwt-for-a-github-app) setzen; beispielsweise lässt sich `openssl` zum Signieren verwenden.
-2. Das JWT ausschließlich zur Authentifizierung von `POST /app/installations/180787526/access_tokens` verwenden. Das zurückgegebene Installationstoken gilt nur begrenzt und erhält höchstens die Rechte der Installation. Bei Bedarf die [GitHub-Dokumentation zum Installationstoken](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app) beachten.
-3. GitHub-API-Anfragen mit dem Installationstoken als Bearer-Token ausführen. Alternativ kann `gh` das Token für einen einzelnen Prozess über `GH_TOKEN` erhalten. Für Git über HTTPS das Token nur flüchtig als Zugangsdaten übergeben und nur mit `github.com` verwenden.
+Das Entwicklungsskript `scripts/github_app.py` benötigt Python, OpenSSL, Netzwerkzugriff und je nach Befehl `gh` oder `git`. Es erzeugt ein App-JWT und ein kurzlebiges Installationstoken und startet den angegebenen Befehl mit der App-Identität:
 
-JWT und Installationstoken weder ausgeben noch in Git-Konfiguration, Dateien, Shell-Historie, URLs oder Commit-Nachrichten speichern. Keine Zugangsdaten in Tool-Ausgaben oder PRs aufnehmen. `~/.config` und `/tmp` sind keine Ersatzorte für dauerhaft gespeicherte Tokens. Die App-Authentifizierung ersetzt keine Zustimmung zu Aktionen, die eine solche benötigen.
+```bash
+python3 scripts/github_app.py -- gh api repos/kaiboesefeldt/ba-jobsuche
+python3 scripts/github_app.py -- gh pr list --repo kaiboesefeldt/ba-jobsuche
+python3 scripts/github_app.py -- git push origin <branch>
+```
+
+App-ID, Installations-ID und Schlüsselpfad lassen sich über `--app-id`, `--installation-id` und `--key` oder die Umgebungsvariablen `GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID` und `GITHUB_APP_KEY` überschreiben. Die Optionen stehen vor `--`; danach folgt der Befehl. `python3 scripts/github_app.py --help` zeigt die Details.
+
+Das Token wird bei `gh` als `GH_TOKEN` und bei Git als flüchtige, auf `https://github.com/` begrenzte HTTP-Konfiguration im Kindprozess übergeben. Es wird nicht als Kommandozeilenargument übergeben oder dauerhaft gespeichert. Umgebungsvariablen können jedoch für berechtigte Prozesse auf demselben System sichtbar sein; nur vertrauenswürdige Befehle aufrufen und keine Debug-Ausgaben aktivieren, die Zugangsdaten offenlegen. Der gestartete Befehl kann selbst Daten ausgeben oder speichern. Nur HTTPS-Remotes auf GitHub verwenden; SSH nutzt diese Authentifizierung nicht.
+
+Die regulären Tests laufen ohne Netzwerk und Schlüssel: `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v`. Ein Live-Aufruf prüft zusätzlich die App-Installation, aber ist kein Ersatz für die Tests.
+
+Für die Entwicklung ist Ruff in `requirements-dev.txt` festgelegt. Nach Installation in einer virtuellen Umgebung prüfen `ruff check scripts tests` und `ruff format --check scripts tests` den Code. Ruff ist keine Laufzeitabhängigkeit des Skripts.
+
+JWT und Installationstoken weder ausgeben noch dauerhaft in Git-Konfiguration, Dateien, Shell-Historie, URLs oder Commit-Nachrichten speichern. Keine Zugangsdaten in Tool-Ausgaben oder PRs aufnehmen. Die App-Authentifizierung ersetzt keine Zustimmung zu Aktionen, die eine solche benötigen.
 
 ## Arbeitsablauf und Prüfung
 
