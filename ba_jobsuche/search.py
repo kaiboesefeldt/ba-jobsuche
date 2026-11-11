@@ -13,15 +13,20 @@ class SearchError(Exception):
     """The service response cannot be interpreted reliably."""
 
 
-def parse_page(data: Any) -> tuple[int, list[dict[str, Any]]]:
-    if not isinstance(data, dict):
-        raise SearchError("Invalid search response")
+def parse_total(data: dict[str, Any]) -> int:
     try:
         total = int(data["maxErgebnisse"])
     except (KeyError, TypeError, ValueError) as exc:
         raise SearchError("Missing or invalid result count") from exc
     if total < 0:
         raise SearchError("Invalid result count")
+    return total
+
+
+def parse_page(data: Any) -> tuple[int, list[dict[str, Any]]]:
+    if not isinstance(data, dict):
+        raise SearchError("Invalid search response")
+    total = parse_total(data)
     entries = data.get("ergebnisliste", [] if total == 0 else None)
     if not isinstance(entries, list):
         raise SearchError("Missing or invalid result list")
