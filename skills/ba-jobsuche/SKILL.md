@@ -12,9 +12,11 @@ Die Skill benötigt Python 3.10 oder neuer und Netzwerkzugriff auf die Jobsuche 
 Suche Stellen und rufe Details mit `scripts/jobsuche.py` ab:
 
 ```sh
-python3 scripts/jobsuche.py search --was 'Suchbegriff' --wo 'Ort' --homeoffice 25%
+python3 scripts/jobsuche.py search --was 'Suchbegriff' --wo 'Rostock:50' --homeoffice 25%
 python3 scripts/jobsuche.py detail 'Referenznummer'
 ```
+
+`--wo` akzeptiert einen Ort oder `Ort:Kilometer` mit ganzzahligem Umkreis von 0 bis 200 km; ohne `--wo` wird kein Ort vorgegeben. Ungültige Angaben führen zu einem Eingabefehler. Die API-Grenzen sind nicht verbindlich dokumentiert.
 
 `--homeoffice` akzeptiert optional `0%`, `25%`, `50%` oder `100%`; ohne Wert gilt `100%`.
 
@@ -39,7 +41,7 @@ Es folgen Beispiele für Ausgaben der Kommandos `search` und `detail`. Sie entha
   "ok": true,
   "source": "https://www.arbeitsagentur.de/jobsuche/",
   "retrieved_at": "2026-01-01T12:00:00+00:00",
-  "query": {"was": "Softwareentwicklung", "wo": "Berlin"},
+  "query": {"was": "Softwareentwicklung", "wo": "Berlin", "homeoffice": "25%"},
   "results": [{"referenznummer": "BEISPIEL-123", "titel": "Softwareentwickler"}],
   "pages_fetched": 1,
   "reported_totals": [1],

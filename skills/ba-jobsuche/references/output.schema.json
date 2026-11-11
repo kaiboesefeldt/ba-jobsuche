@@ -39,10 +39,26 @@
             "arbeitszeit": {
               "type": "string",
               "description": "Optionaler Arbeitszeitfilter; ho steht für Heim- oder Telearbeit."
+            },
+            "umkreis": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 200,
+              "description": "Optionaler Suchradius in Kilometern um den Suchort."
+            },
+            "homeoffice": {
+              "type": "string",
+              "enum": [
+                "0%",
+                "25%",
+                "50%",
+                "100%"
+              ],
+              "description": "Homeoffice-Filter als Prozentwert."
             }
           },
           "additionalProperties": false,
-          "description": "Suchparameter, die an die Schnittstelle übergeben werden, ohne Seitenparameter."
+          "description": "Verständliche Darstellung der verwendeten Suchparameter, ohne Seitenparameter."
         },
         "results": {
           "type": "array",
