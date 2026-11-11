@@ -3,6 +3,7 @@
 import base64
 import json
 import os
+from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
@@ -12,12 +13,12 @@ PUBLIC_API_KEY = "jobboerse-jobsuche"
 
 
 class ApiError(Exception):
-    def __init__(self, code, message):
+    def __init__(self, code: str, message: str) -> None:
         super().__init__(message)
         self.code = code
 
 
-def request(path, params=None):
+def request(path: str, params: dict[str, Any] | None = None) -> Any:
     url = BASE_URL + path
     if params:
         url += "?" + urlencode(params)
@@ -39,10 +40,10 @@ def request(path, params=None):
         raise ApiError("invalid_response", "Service returned invalid JSON") from exc
 
 
-def fetch_search(params):
+def fetch_search(params: dict[str, Any]) -> Any:
     return request("/pc/v6/jobs", params)
 
 
-def fetch_detail(reference):
+def fetch_detail(reference: str) -> Any:
     encoded = base64.b64encode(reference.encode("utf-8")).decode("ascii")
     return request("/pc/v4/jobdetails/" + quote(encoded, safe=""))

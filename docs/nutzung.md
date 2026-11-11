@@ -24,7 +24,8 @@ Quelle ist die Jobsuche der Bundesagentur für Arbeit; Daten und Verfügbarkeit 
 ```sh
 python3 -m venv .venv
 .venv/bin/pip install -r requirements-dev.txt
-PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/coverage run -m unittest discover -s tests -v
+.venv/bin/coverage report
 .venv/bin/ruff check ba_jobsuche scripts tests
 .venv/bin/ruff format --check ba_jobsuche scripts tests
 ```

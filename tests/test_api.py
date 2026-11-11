@@ -33,3 +33,23 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(caught.exception.code, "http_error")
         self.assertNotIn("secret", str(caught.exception))
         error.close()
+
+    def test_invalid_json_and_network_failure(self):
+        from urllib.error import URLError
+
+        for failure, code in [
+            (io.BytesIO(b"not json"), "invalid_response"),
+            (URLError("offline"), "network_error"),
+        ]:
+            with self.subTest(code=code):
+                kwargs = (
+                    {"side_effect": failure}
+                    if isinstance(failure, Exception)
+                    else {"return_value": failure}
+                )
+                with (
+                    patch("ba_jobsuche.api.urlopen", **kwargs),
+                    self.assertRaises(ApiError) as caught,
+                ):
+                    fetch_search({"was": "Python"})
+                self.assertEqual(caught.exception.code, code)

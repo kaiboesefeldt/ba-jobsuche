@@ -41,3 +41,31 @@ class SearchTests(unittest.TestCase):
         result = search(lambda _: {"maxErgebnisse": 20, "ergebnisliste": []}, {}, 10, 3)
         self.assertFalse(result["complete"])
         self.assertEqual(result["stop_reason"], "unexpected_empty_page")
+
+    def test_invalid_page_responses(self):
+        from ba_jobsuche.search import SearchError
+
+        cases = [
+            None,
+            {},
+            {"maxErgebnisse": None},
+            {"maxErgebnisse": "bad"},
+            {"maxErgebnisse": -1},
+            {"maxErgebnisse": 1, "ergebnisliste": None},
+            {"maxErgebnisse": 1, "ergebnisliste": [None]},
+            {"maxErgebnisse": 1, "ergebnisliste": [{}]},
+            {"maxErgebnisse": 1, "ergebnisliste": [{"referenznummer": ""}]},
+        ]
+        for case in cases:
+            with self.subTest(case=case), self.assertRaises(SearchError):
+                search(lambda _, response=case: response, {})
+
+    def test_invalid_limits(self):
+        for size, pages in [(0, 1), (101, 1), (1, 0), (1, 101)]:
+            with self.subTest(size=size, pages=pages), self.assertRaises(ValueError):
+                search(lambda _: {}, {}, size, pages)
+
+    def test_empty_zero_result(self):
+        result = search(lambda _: {"maxErgebnisse": 0}, {})
+        self.assertEqual(result["results"], [])
+        self.assertTrue(result["complete"])

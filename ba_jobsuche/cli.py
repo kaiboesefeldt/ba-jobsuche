@@ -3,17 +3,46 @@
 import argparse
 import json
 from datetime import datetime, timezone
+from typing import Any, NoReturn
 
 from .api import ApiError, fetch_detail, fetch_search
 from .search import DEFAULT_MAX_PAGES, DEFAULT_PAGE_SIZE, SearchError, search
 
 
 class Parser(argparse.ArgumentParser):
-    def error(self, message):
+    def error(self, message: str) -> NoReturn:
         raise ValueError(message)
 
 
-def main(argv=None):
+def search_command(args: argparse.Namespace) -> dict[str, Any]:
+    if not args.was.strip() or (args.wo is not None and not args.wo.strip()):
+        raise ValueError("Search text and location must not be empty")
+    query = {"was": args.was}
+    if args.wo:
+        query["wo"] = args.wo
+    if args.homeoffice:
+        query["arbeitszeit"] = "ho"
+    return {"query": query, **search(fetch_search, query, args.size, args.max_pages)}
+
+
+def detail_command(args: argparse.Namespace) -> dict[str, Any]:
+    if not args.reference.strip():
+        raise ValueError("Reference must not be empty")
+    result = fetch_detail(args.reference)
+    if not isinstance(result, dict):
+        raise SearchError("Invalid detail response")
+    return {"reference": args.reference, "result": result}
+
+
+def dispatch(args: argparse.Namespace) -> dict[str, Any]:
+    if args.command == "search":
+        return search_command(args)
+    if args.command == "detail":
+        return detail_command(args)
+    raise ValueError("Unsupported command")
+
+
+def main(argv: list[str] | None = None) -> int:
     parser = Parser(description="Search BA Jobsuche")
     sub = parser.add_subparsers(dest="command", required=True)
     find = sub.add_parser("search")
@@ -35,26 +64,7 @@ def main(argv=None):
             "source": "https://www.arbeitsagentur.de/jobsuche/",
             "retrieved_at": now,
         }
-        if args.command == "search":
-            if not args.was.strip() or (args.wo is not None and not args.wo.strip()):
-                raise ValueError("Search text and location must not be empty")
-            query = {"was": args.was}
-            if args.wo:
-                query["wo"] = args.wo
-            if args.homeoffice:
-                query["arbeitszeit"] = "ho"
-            data = {
-                **base,
-                "query": query,
-                **search(fetch_search, query, args.size, args.max_pages),
-            }
-        else:
-            if not args.reference.strip():
-                raise ValueError("Reference must not be empty")
-            result = fetch_detail(args.reference)
-            if not isinstance(result, dict):
-                raise SearchError("Invalid detail response")
-            data = {**base, "reference": args.reference, "result": result}
+        data = {**base, **dispatch(args)}
         status = 0
     except (ValueError, SearchError, ApiError) as exc:
         code = (
