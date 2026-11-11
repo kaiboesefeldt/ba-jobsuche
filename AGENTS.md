@@ -16,7 +16,7 @@ Hier entsteht eine allgemein nutzbare Agent-Skill zur Recherche von Stellen übe
 - Änderungen auf einem eigenen Branch vorbereiten; nicht direkt auf `main` arbeiten oder dorthin pushen.
 - Änderungen über einen Pull Request zur Prüfung vorlegen. Der Nutzer entscheidet über Freigabe und Merge; Review-Rückmeldungen auf dem PR-Branch bearbeiten. Nicht eigenständig mergen.
 - KI-Unterstützung bei von Codex erstellten Commits durch den Trailer `Assisted-by: OpenAI Codex` kenntlich machen. Im Pull Request kurz darstellen, welche Umsetzung von Codex stammt und welche wesentlichen Vorgaben oder Entscheidungen vom Nutzer kommen.
-- Für GitHub-Aktionen die vorgesehene GitHub-App-Identität verwenden.
+- Für GitHub-Aktionen die GitHub-App-Identität verwenden; Einrichtung und Zugriff stehen in [docs/entwicklung/github-app.md](docs/entwicklung/github-app.md).
 
 ## Entwicklung
 
