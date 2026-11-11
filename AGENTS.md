@@ -13,6 +13,7 @@ Hier entsteht eine allgemein nutzbare Agent-Skill zur Recherche von Stellen übe
 
 ## Branches und Pull Requests
 
+- Für beauftragte Issues gilt der [agentische Entwicklungsworkflow](docs/entwicklung/issue-workflow.md). Keine GitHub-Sub-Issues für die Aufgabenzerlegung der Superpowers-Skills anlegen.
 - Änderungen auf einem eigenen Branch vorbereiten; nicht direkt auf `main` arbeiten oder dorthin pushen.
 - Änderungen über einen Pull Request zur Prüfung vorlegen. Der Nutzer entscheidet über Freigabe und Merge; Review-Rückmeldungen auf dem PR-Branch bearbeiten. Nicht eigenständig mergen.
 - KI-Unterstützung bei von Codex erstellten Commits durch den Trailer `Assisted-by: OpenAI Codex` kenntlich machen. Im Pull Request kurz darstellen, welche Umsetzung von Codex stammt und welche wesentlichen Vorgaben oder Entscheidungen vom Nutzer kommen.
@@ -20,7 +21,7 @@ Hier entsteht eine allgemein nutzbare Agent-Skill zur Recherche von Stellen übe
 
 ## Entwicklung
 
-- Für Laufzeitcode möglichst ausschließlich die Python-Standardbibliothek verwenden; zusätzliche Laufzeitabhängigkeiten besonders streng begründen. Die unterstützte Python-Version ist noch festzulegen.
+- Für Laufzeitcode ausschließlich die Python-Standardbibliothek verwenden. Die unterstützte Python-Version ist noch festzulegen.
 - Ruff als Entwicklungsabhängigkeit für Linting und Formatierung einsetzen; Konfiguration und Ausführung bei der Implementierung dokumentieren.
 - Projektbeiträge stehen unter Apache License 2.0; Rechte und Bedingungen für eingebundene Materialien und externe Daten gesondert beachten.
 - API-Zugriff, Suchlogik und CLI trennen; ein eigenes stabiles CLI-Ausgabeformat definieren. Schnittstellen und Fehlerfälle ausdrücklich behandeln und unnötige Komplexität vermeiden.
