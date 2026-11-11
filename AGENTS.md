@@ -10,7 +10,6 @@ Hier entsteht eine allgemein nutzbare Agent-Skill zur Recherche von Stellen übe
 - Anforderungen und technische Entscheidungen von Annahmen unterscheiden. Größere Änderungen vor der Umsetzung mit einem nachvollziehbaren Entwurf vorbereiten.
 - Skill-Texte sowie Architektur- und Designdokumentation auf Deutsch verfassen. Code einschließlich Bezeichnern, Kommentaren, Docstrings und Fehlermeldungen auf Englisch schreiben; vorgegebene externe API-Feldnamen und Parameter unverändert übernehmen.
 - Auf eigenen Arbeitsbranches nach eigenem Ermessen committen und pushen.
-- Veröffentlichungen, Bewerbungen und Kontaktaufnahmen erfordern einen ausdrücklichen Auftrag.
 
 ## Branches und Pull Requests
 
