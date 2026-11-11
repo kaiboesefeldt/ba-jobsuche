@@ -27,3 +27,24 @@ class CliTests(unittest.TestCase):
             status = main(["search", "--was", "Python", "--max-pages", "0"])
         self.assertNotEqual(status, 0)
         self.assertFalse(json.loads(out.getvalue())["ok"])
+
+    def test_homeoffice_is_sent_only_when_requested(self):
+        for options, expected in [
+            ([], {"was": "Python"}),
+            (["--homeoffice"], {"was": "Python", "arbeitszeit": "ho"}),
+        ]:
+            with self.subTest(options=options):
+                out = io.StringIO()
+                with (
+                    patch(
+                        "ba_jobsuche.cli.fetch_search",
+                        return_value={"maxErgebnisse": 0},
+                    ) as fetch,
+                    contextlib.redirect_stdout(out),
+                ):
+                    status = main(["search", "--was", "Python", *options])
+                self.assertEqual(status, 0)
+                self.assertEqual(json.loads(out.getvalue())["query"], expected)
+                self.assertEqual(
+                    fetch.call_args.args[0], {**expected, "page": 1, "size": 100}
+                )

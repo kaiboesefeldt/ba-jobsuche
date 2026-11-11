@@ -19,6 +19,9 @@ def main(argv=None):
     find = sub.add_parser("search")
     find.add_argument("--was", required=True)
     find.add_argument("--wo")
+    find.add_argument(
+        "--homeoffice", action="store_true", help="Filter for home or telework"
+    )
     find.add_argument("--size", type=int, default=DEFAULT_PAGE_SIZE)
     find.add_argument("--max-pages", type=int, default=DEFAULT_MAX_PAGES)
     detail = sub.add_parser("detail")
@@ -38,6 +41,8 @@ def main(argv=None):
             query = {"was": args.was}
             if args.wo:
                 query["wo"] = args.wo
+            if args.homeoffice:
+                query["arbeitszeit"] = "ho"
             data = {
                 **base,
                 "query": query,
