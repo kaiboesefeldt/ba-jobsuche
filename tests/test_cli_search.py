@@ -115,7 +115,13 @@ class CliTests(unittest.TestCase):
             contextlib.redirect_stdout(out),
         ):
             self.assertEqual(main(["search", "--was", "Python", "--wo", "Berlin"]), 0)
-        self.assertEqual(fetch.call_args.args[0]["wo"], "Berlin")
+        self.assertEqual(
+            fetch.call_args.args[0],
+            {"was": "Python", "wo": "Berlin", "page": 1, "size": 100},
+        )
+        self.assertEqual(
+            json.loads(out.getvalue())["query"], {"was": "Python", "wo": "Berlin"}
+        )
         self.assertEqual(
             json.loads(out.getvalue())["results"], response["ergebnisliste"]
         )
@@ -123,6 +129,8 @@ class CliTests(unittest.TestCase):
     def test_location_radius_is_sent_and_reported(self):
         for value, location, radius in (
             ("Rostock:50", "Rostock", 50),
+            ("Alt Ungnade:50", "Alt Ungnade", 50),
+            ("Frankfurt (Oder):50", "Frankfurt (Oder)", 50),
             ("Berlin:0", "Berlin", 0),
             ("Berlin:200", "Berlin", 200),
             ("Berlin:00050", "Berlin", 50),

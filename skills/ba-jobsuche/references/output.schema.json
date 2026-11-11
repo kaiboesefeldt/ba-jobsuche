@@ -54,7 +54,7 @@
                 "prozentual_50",
                 "prozentual_100"
               ],
-              "description": "Optionaler Homeoffice-Filter."
+              "description": "An die API übergebener Homeoffice-Filter; CLI-Eingaben 0%, 25%, 50%, 100% werden auf prozentual_0, prozentual_25, prozentual_50, prozentual_100 abgebildet."
             }
           },
           "additionalProperties": false,
