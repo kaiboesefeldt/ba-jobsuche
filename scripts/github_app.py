@@ -11,19 +11,19 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
+
 
 def encode(value: bytes) -> str:
     return base64.urlsafe_b64encode(value).rstrip(b"=").decode("ascii")
 
 
 def sign(message: bytes, key: Path) -> bytes:
-    return subprocess.run(
-        ["openssl", "dgst", "-sha256", "-sign", str(key)],
-        input=message,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        check=True,
-    ).stdout
+    private_key = serialization.load_pem_private_key(key.read_bytes(), password=None)
+    if not isinstance(private_key, rsa.RSAPrivateKey):
+        raise TypeError("GitHub App key must be an RSA private key")
+    return private_key.sign(message, padding.PKCS1v15(), hashes.SHA256())
 
 
 def create_jwt(app_id: str, key: Path) -> str:
@@ -144,6 +144,7 @@ def main() -> int:
         OSError,
         subprocess.CalledProcessError,
         urllib.error.URLError,
+        TypeError,
         ValueError,
     ) as error:
         print(f"GitHub App access failed: {type(error).__name__}", file=sys.stderr)

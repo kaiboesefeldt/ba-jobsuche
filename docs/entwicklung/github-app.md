@@ -13,7 +13,7 @@ IDs, Berechtigungen und Installationsumfang können sich ändern. Der Schlüssel
 
 ## Authentifizierung und Aufrufe
 
-Das Entwicklungsskript `scripts/github_app.py` benötigt Python, OpenSSL und Netzwerkzugriff. Für Git-Befehle ist zusätzlich Git erforderlich. Es erzeugt ein App-JWT und ein kurzlebiges Installationstoken und greift direkt auf die GitHub-API zu oder startet Git mit der App-Identität:
+Das Entwicklungsskript `scripts/github_app.py` benötigt Python, die Entwicklungsabhängigkeit `cryptography` und Netzwerkzugriff. Installiere die Entwicklungsabhängigkeiten mit `python3 -m pip install -r requirements-dev.txt` in einer virtuellen Umgebung. Für Git-Befehle ist zusätzlich Git erforderlich. Das Skript erzeugt ein App-JWT und ein kurzlebiges Installationstoken und greift direkt auf die GitHub-API zu oder startet Git mit der App-Identität:
 
 ```bash
 python3 scripts/github_app.py api /repos/kaiboesefeldt/ba-jobsuche
@@ -28,7 +28,7 @@ API-Aufrufe gehen ausschließlich an `api.github.com`; Weiterleitungen werden ab
 
 Die regulären Tests laufen ohne Netzwerk und Schlüssel: `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v`. Ein Live-Aufruf prüft zusätzlich die App-Installation, aber ist kein Ersatz für die Tests.
 
-Für die Entwicklung ist Ruff in `requirements-dev.txt` festgelegt. Nach Installation in einer virtuellen Umgebung prüfen `ruff check scripts tests` und `ruff format --check scripts tests` den Code. Ruff ist keine Laufzeitabhängigkeit des Skripts.
+Für die Entwicklung ist Ruff in `requirements-dev.txt` festgelegt. Nach Installation in einer virtuellen Umgebung prüfen `ruff check scripts tests` und `ruff format --check scripts tests` den Code. `cryptography` wird für das Entwicklungsskript benötigt; weder `cryptography` noch Ruff sind damit Laufzeitabhängigkeiten der geplanten Skill.
 
 JWT und Installationstoken weder ausgeben noch dauerhaft in Git-Konfiguration, Dateien, Shell-Historie, URLs oder Commit-Nachrichten speichern. Keine Zugangsdaten in Tool-Ausgaben oder PRs aufnehmen. Die App-Authentifizierung ersetzt keine Zustimmung zu Aktionen, die eine solche benötigen.
 

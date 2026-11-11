@@ -2,9 +2,13 @@ import base64
 import importlib.util
 import json
 import os
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 SPEC = importlib.util.spec_from_file_location(
     "github_app", Path(__file__).resolve().parents[1] / "scripts" / "github_app.py"
@@ -14,6 +18,24 @@ SPEC.loader.exec_module(module)
 
 
 class GitHubAppTests(unittest.TestCase):
+    def test_sign_uses_rsa_sha256_without_external_process(self):
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        pem = key.private_bytes(
+            serialization.Encoding.PEM,
+            serialization.PrivateFormat.TraditionalOpenSSL,
+            serialization.NoEncryption(),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "key.pem"
+            path.write_bytes(pem)
+            with patch.object(
+                module.subprocess, "run", side_effect=AssertionError("external process")
+            ):
+                signature = module.sign(b"message", path)
+        key.public_key().verify(
+            signature, b"message", padding.PKCS1v15(), hashes.SHA256()
+        )
+
     def test_jwt_has_expected_claims_and_signature(self):
         with (
             patch.object(module.time, "time", return_value=1000),
