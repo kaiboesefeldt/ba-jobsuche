@@ -1,6 +1,6 @@
 # GitHub-Zugriff für die Entwicklung
 
-Für dieses Repository erfolgt der GitHub-Zugriff als GitHub App `kai-codex-agent`, nicht über Kais persönliches GitHub-Konto. Die App ist für `kaiboesefeldt/ba-jobsuche` installiert. Das gilt auch für künftige Sessions; `gh auth login` mit dem persönlichen Konto ist dafür nicht erforderlich.
+Für dieses Repository erfolgt der GitHub-Zugriff als GitHub App `kai-codex-agent`, nicht über Kais persönliches GitHub-Konto. Die App ist für `kaiboesefeldt/ba-jobsuche` installiert. Das gilt auch für künftige Sessions; die GitHub CLI ist nicht erforderlich.
 
 ## Lokale Einrichtung
 
@@ -13,17 +13,18 @@ IDs, Berechtigungen und Installationsumfang können sich ändern. Der Schlüssel
 
 ## Authentifizierung und Aufrufe
 
-Das Entwicklungsskript `scripts/github_app.py` benötigt Python, OpenSSL, Netzwerkzugriff und je nach Befehl `gh` oder `git`. Es erzeugt ein App-JWT und ein kurzlebiges Installationstoken und startet den angegebenen Befehl mit der App-Identität:
+Das Entwicklungsskript `scripts/github_app.py` benötigt Python, OpenSSL und Netzwerkzugriff. Für Git-Befehle ist zusätzlich Git erforderlich. Es erzeugt ein App-JWT und ein kurzlebiges Installationstoken und greift direkt auf die GitHub-API zu oder startet Git mit der App-Identität:
 
 ```bash
-python3 scripts/github_app.py -- gh api repos/kaiboesefeldt/ba-jobsuche
-python3 scripts/github_app.py -- gh pr list --repo kaiboesefeldt/ba-jobsuche
-python3 scripts/github_app.py -- git push origin <branch>
+python3 scripts/github_app.py api /repos/kaiboesefeldt/ba-jobsuche
+python3 scripts/github_app.py api '/repos/kaiboesefeldt/ba-jobsuche/pulls?state=open'
+python3 scripts/github_app.py api --method POST --input /tmp/pr.json /repos/kaiboesefeldt/ba-jobsuche/pulls
+python3 scripts/github_app.py git push origin <branch>
 ```
 
-App-ID, Installations-ID und Schlüsselpfad lassen sich über `--app-id`, `--installation-id` und `--key` oder die Umgebungsvariablen `GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID` und `GITHUB_APP_KEY` überschreiben. Die Optionen stehen vor `--`; danach folgt der Befehl. `python3 scripts/github_app.py --help` zeigt die Details.
+App-ID, Installations-ID und Schlüsselpfad lassen sich über `--app-id`, `--installation-id` und `--key` oder die Umgebungsvariablen `GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID` und `GITHUB_APP_KEY` überschreiben. Die allgemeinen Optionen stehen vor `api` beziehungsweise `git`. Bei API-Aufrufen kann ein JSON-Body aus einer Datei übergeben werden. `python3 scripts/github_app.py --help` und `python3 scripts/github_app.py api --help` zeigen die Details.
 
-Das Token wird bei `gh` als `GH_TOKEN` und bei Git als flüchtige, auf `https://github.com/` begrenzte HTTP-Konfiguration im Kindprozess übergeben. Es wird nicht als Kommandozeilenargument übergeben oder dauerhaft gespeichert. Umgebungsvariablen können jedoch für berechtigte Prozesse auf demselben System sichtbar sein; nur vertrauenswürdige Befehle aufrufen und keine Debug-Ausgaben aktivieren, die Zugangsdaten offenlegen. Der gestartete Befehl kann selbst Daten ausgeben oder speichern. Nur HTTPS-Remotes auf GitHub verwenden; SSH nutzt diese Authentifizierung nicht.
+API-Aufrufe gehen ausschließlich an `api.github.com`; Weiterleitungen werden abgelehnt. Für Git wird das Token als flüchtige, auf `https://github.com/` begrenzte HTTP-Konfiguration im Kindprozess übergeben. Es wird nicht als Kommandozeilenargument übergeben oder dauerhaft gespeichert. Umgebungsvariablen können jedoch für berechtigte Prozesse auf demselben System sichtbar sein; nur vertrauenswürdige Befehle aufrufen und keine Debug-Ausgaben aktivieren, die Zugangsdaten offenlegen. Nur HTTPS-Remotes auf GitHub verwenden; SSH nutzt diese Authentifizierung nicht.
 
 Die regulären Tests laufen ohne Netzwerk und Schlüssel: `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v`. Ein Live-Aufruf prüft zusätzlich die App-Installation, aber ist kein Ersatz für die Tests.
 

@@ -31,28 +31,39 @@ class GitHubAppTests(unittest.TestCase):
         )
         self.assertEqual(decode(signature), b"signed")
 
-    def test_child_environment_is_scoped_to_selected_tool(self):
+    def test_git_environment_does_not_inherit_github_tokens(self):
         with patch.dict(
             os.environ, {"GH_TOKEN": "old", "GITHUB_TOKEN": "old2"}, clear=True
         ):
-            gh_env = module.child_environment("gh", "secret")
-            git_env = module.child_environment("git", "secret")
-        self.assertEqual(gh_env["GH_TOKEN"], "secret")
-        self.assertNotIn("GITHUB_TOKEN", gh_env)
+            git_env = module.git_environment("secret")
         self.assertNotIn("GH_TOKEN", git_env)
         self.assertEqual(
             git_env["GIT_CONFIG_KEY_0"], "http.https://github.com/.extraheader"
         )
         self.assertNotIn("secret", git_env["GIT_CONFIG_VALUE_0"])
-        self.assertNotIn("GIT_CONFIG_VALUE_0", gh_env)
+
+    def test_api_request_uses_github_and_bearer_token(self):
+        with patch.object(
+            module, "open_request", return_value=b'{"ok":true}'
+        ) as opener:
+            result = module.api_request("secret", "/repos/example/project", "GET", None)
+        self.assertEqual(result, b'{"ok":true}')
+        request = opener.call_args.args[0]
+        self.assertEqual(
+            request.full_url, "https://api.github.com/repos/example/project"
+        )
+        self.assertEqual(request.get_header("Authorization"), "Bearer secret")
+
+    def test_api_rejects_external_url(self):
+        with self.assertRaises(ValueError):
+            module.api_request("secret", "//example.com/steal", "GET", None)
 
     def test_request_rejects_invalid_response(self):
-        with patch.object(module.urllib.request, "urlopen") as urlopen:
-            urlopen.return_value.__enter__.return_value.read.return_value = (
-                b'{"token": 42}'
-            )
-            with self.assertRaisesRegex(ValueError, "token"):
-                module.installation_token("jwt", "123")
+        with (
+            patch.object(module, "open_request", return_value=b'{"token": 42}'),
+            self.assertRaisesRegex(ValueError, "token"),
+        ):
+            module.installation_token("jwt", "123")
 
 
 if __name__ == "__main__":

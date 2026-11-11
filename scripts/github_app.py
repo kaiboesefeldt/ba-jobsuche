@@ -1,4 +1,4 @@
-"""Run a GitHub CLI or Git command with a GitHub App installation token."""
+"""Access the GitHub API or run Git with a GitHub App installation token."""
 
 import argparse
 import base64
@@ -47,15 +47,40 @@ def installation_token(jwt: str, installation_id: str) -> str:
         },
         method="POST",
     )
-    with urllib.request.urlopen(request, timeout=20) as response:
-        result = json.loads(response.read())
+    result = json.loads(open_request(request))
     token = result.get("token") if isinstance(result, dict) else None
     if not isinstance(token, str) or not token:
         raise ValueError("GitHub returned an invalid installation token")
     return token
 
 
-def child_environment(tool: str, token: str) -> dict[str, str]:
+def open_request(request: urllib.request.Request) -> bytes:
+    class NoRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            return None
+
+    with urllib.request.build_opener(NoRedirect).open(request, timeout=20) as response:
+        return response.read()
+
+
+def api_request(token: str, path: str, method: str, data: bytes | None) -> bytes:
+    if not path.startswith("/") or path.startswith("//") or "#" in path:
+        raise ValueError("API path must be an absolute path on api.github.com")
+    request = urllib.request.Request(
+        "https://api.github.com" + path,
+        data=data,
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "Content-Type": "application/json",
+            "User-Agent": "github-app-wrapper",
+        },
+        method=method,
+    )
+    return open_request(request)
+
+
+def git_environment(token: str) -> dict[str, str]:
     env = os.environ.copy()
     for name in (
         "GH_TOKEN",
@@ -64,17 +89,11 @@ def child_environment(tool: str, token: str) -> dict[str, str]:
         "GITHUB_ENTERPRISE_TOKEN",
     ):
         env.pop(name, None)
-    if tool == "gh":
-        env["GH_TOKEN"] = token
-        env["GH_HOST"] = "github.com"
-    else:
-        credential = base64.b64encode(f"x-access-token:{token}".encode()).decode(
-            "ascii"
-        )
-        env["GIT_CONFIG_COUNT"] = "1"
-        env["GIT_CONFIG_KEY_0"] = "http.https://github.com/.extraheader"
-        env["GIT_CONFIG_VALUE_0"] = f"AUTHORIZATION: basic {credential}"
-        env["GIT_TERMINAL_PROMPT"] = "0"
+    credential = base64.b64encode(f"x-access-token:{token}".encode()).decode("ascii")
+    env["GIT_CONFIG_COUNT"] = "1"
+    env["GIT_CONFIG_KEY_0"] = "http.https://github.com/.extraheader"
+    env["GIT_CONFIG_VALUE_0"] = f"AUTHORIZATION: basic {credential}"
+    env["GIT_TERMINAL_PROMPT"] = "0"
     return env
 
 
@@ -94,25 +113,33 @@ def main() -> int:
             )
         ).expanduser(),
     )
-    parser.add_argument(
-        "command",
-        nargs=argparse.REMAINDER,
-        help="Command: gh or git followed by its arguments",
+    commands = parser.add_subparsers(dest="command", required=True)
+    api = commands.add_parser("api", help="Call the GitHub REST API")
+    api.add_argument(
+        "--method", choices=("GET", "POST", "PATCH", "PUT", "DELETE"), default="GET"
     )
+    api.add_argument("--input", type=Path, help="JSON request body file")
+    api.add_argument("path", help="Absolute API path, including optional query")
+    git = commands.add_parser("git", help="Run Git with the installation token")
+    git.add_argument("arguments", nargs=argparse.REMAINDER)
     args = parser.parse_args()
-    command = args.command
-    if command and command[0] == "--":
-        command = command[1:]
-    if not command or command[0] not in ("gh", "git"):
-        parser.error("command must start with gh or git")
     if not args.app_id.isdecimal() or not args.installation_id.isdecimal():
         parser.error("app ID and installation ID must be numeric")
     try:
         jwt = create_jwt(args.app_id, args.key.expanduser())
         token = installation_token(jwt, args.installation_id)
+        if args.command == "api":
+            data = args.input.read_bytes() if args.input else None
+            if data is not None:
+                json.loads(data)
+            sys.stdout.buffer.write(api_request(token, args.path, args.method, data))
+            return 0
         return subprocess.run(
-            command, env=child_environment(command[0], token), check=False
+            ["git", *args.arguments], env=git_environment(token), check=False
         ).returncode
+    except urllib.error.HTTPError as error:
+        print(f"GitHub App access failed: HTTP {error.code}", file=sys.stderr)
+        return 1
     except (
         OSError,
         subprocess.CalledProcessError,
