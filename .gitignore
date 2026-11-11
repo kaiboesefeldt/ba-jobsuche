@@ -1,3 +1,5 @@
 /.idea/
 /.agents/skills/
 /tmp/
+__pycache__/
+*.py[cod]
