@@ -21,6 +21,8 @@ Hier entsteht eine allgemein nutzbare Agent-Skill zur Recherche von Stellen übe
 
 ## Entwicklung
 
+- Die [Coding Guidelines](docs/entwicklung/coding-guidelines.md) zu Clean Code, Typannotationen und programmatisch geprüfter Zweigüberdeckung einhalten.
+
 - Für Laufzeitcode ausschließlich die Python-Standardbibliothek verwenden. Die unterstützte Python-Version ist noch festzulegen.
 - Ruff als Entwicklungsabhängigkeit für Linting und Formatierung einsetzen; Konfiguration und Ausführung bei der Implementierung dokumentieren.
 - Projektbeiträge stehen unter Apache License 2.0; Rechte und Bedingungen für eingebundene Materialien und externe Daten gesondert beachten.

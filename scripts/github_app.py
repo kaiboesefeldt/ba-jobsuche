@@ -97,6 +97,18 @@ def git_environment(token: str) -> dict[str, str]:
     return env
 
 
+def run_command(args: argparse.Namespace, token: str) -> int:
+    if args.command == "api":
+        data = args.input.read_bytes() if args.input else None
+        if data is not None:
+            json.loads(data)
+        sys.stdout.buffer.write(api_request(token, args.path, args.method, data))
+        return 0
+    return subprocess.run(
+        ["git", *args.arguments], env=git_environment(token), check=False
+    ).returncode
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--app-id", default=os.environ.get("GITHUB_APP_ID", "5708654"))
@@ -128,15 +140,7 @@ def main() -> int:
     try:
         jwt = create_jwt(args.app_id, args.key.expanduser())
         token = installation_token(jwt, args.installation_id)
-        if args.command == "api":
-            data = args.input.read_bytes() if args.input else None
-            if data is not None:
-                json.loads(data)
-            sys.stdout.buffer.write(api_request(token, args.path, args.method, data))
-            return 0
-        return subprocess.run(
-            ["git", *args.arguments], env=git_environment(token), check=False
-        ).returncode
+        return run_command(args, token)
     except urllib.error.HTTPError as error:
         print(f"GitHub App access failed: HTTP {error.code}", file=sys.stderr)
         return 1
