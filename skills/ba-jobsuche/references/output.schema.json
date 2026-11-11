@@ -49,16 +49,16 @@
             "homeoffice": {
               "type": "string",
               "enum": [
-                "prozentual_0",
-                "prozentual_25",
-                "prozentual_50",
-                "prozentual_100"
+                "0%",
+                "25%",
+                "50%",
+                "100%"
               ],
-              "description": "An die API übergebener Homeoffice-Filter; CLI-Eingaben 0%, 25%, 50%, 100% werden auf prozentual_0, prozentual_25, prozentual_50, prozentual_100 abgebildet."
+              "description": "Homeoffice-Filter als Prozentwert."
             }
           },
           "additionalProperties": false,
-          "description": "Suchparameter, die an die Schnittstelle übergeben werden, ohne Seitenparameter."
+          "description": "Verständliche Darstellung der verwendeten Suchparameter, ohne Seitenparameter."
         },
         "results": {
           "type": "array",

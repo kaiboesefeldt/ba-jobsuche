@@ -41,7 +41,7 @@ Es folgen Beispiele für Ausgaben der Kommandos `search` und `detail`. Sie entha
   "ok": true,
   "source": "https://www.arbeitsagentur.de/jobsuche/",
   "retrieved_at": "2026-01-01T12:00:00+00:00",
-  "query": {"was": "Softwareentwicklung", "wo": "Berlin"},
+  "query": {"was": "Softwareentwicklung", "wo": "Berlin", "homeoffice": "25%"},
   "results": [{"referenznummer": "BEISPIEL-123", "titel": "Softwareentwickler"}],
   "pages_fetched": 1,
   "reported_totals": [1],

@@ -32,9 +32,14 @@ def search_command(args: argparse.Namespace) -> dict[str, Any]:
     query = {"was": args.was}
     if args.wo:
         query.update(parse_location(args.wo))
+    api_query = dict(query)
     if args.homeoffice:
-        query["homeoffice"] = f"prozentual_{args.homeoffice[:-1]}"
-    return {"query": query, **search(fetch_search, query, args.size, args.max_pages)}
+        query["homeoffice"] = args.homeoffice
+        api_query["homeoffice"] = f"prozentual_{args.homeoffice[:-1]}"
+    return {
+        "query": query,
+        **search(fetch_search, api_query, args.size, args.max_pages),
+    }
 
 
 def detail_command(args: argparse.Namespace) -> dict[str, Any]:

@@ -88,7 +88,12 @@ class CliTests(unittest.TestCase):
                 ):
                     status = main(["search", "--was", "Python", *options])
                 self.assertEqual(status, 0)
-                self.assertEqual(json.loads(out.getvalue())["query"], expected)
+                reported = dict(expected)
+                if "homeoffice" in reported:
+                    reported["homeoffice"] = (
+                        reported["homeoffice"].replace("prozentual_", "") + "%"
+                    )
+                self.assertEqual(json.loads(out.getvalue())["query"], reported)
                 self.assertEqual(
                     fetch.call_args.args[0], {**expected, "page": 1, "size": 100}
                 )

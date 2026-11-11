@@ -10,7 +10,7 @@ Die vorhandene CLI übersetzt den optionalen Prozentwert direkt in den API-Param
 
 ## Verhalten
 
-Ohne `--homeoffice` wird kein Homeoffice-Filter gesendet. `--homeoffice` ohne Wert entspricht `100%`; als explizite Werte sind ausschließlich `0%`, `25%`, `50%` und `100%` zulässig. Sie ergeben `homeoffice=prozentual_0`, `prozentual_25`, `prozentual_50` beziehungsweise `prozentual_100`. Andere Eingaben erzeugen den bestehenden JSON-Eingabefehler. Die Ausgabehülle bleibt unverändert; `query` zeigt den tatsächlich gesendeten Parameter.
+Ohne `--homeoffice` wird kein Homeoffice-Filter gesendet. `--homeoffice` ohne Wert entspricht `100%`; als explizite Werte sind ausschließlich `0%`, `25%`, `50%` und `100%` zulässig. Sie ergeben `homeoffice=prozentual_0`, `prozentual_25`, `prozentual_50` beziehungsweise `prozentual_100`. Andere Eingaben erzeugen den bestehenden JSON-Eingabefehler. Die Ausgabehülle bleibt unverändert; `query.homeoffice` zeigt den verständlichen Prozentwert.
 
 Die BA-Semantik ist nicht verbindlich dokumentiert. Stichproben am 11. November 2026 lieferten für die vier Werte unterschiedliche Trefferzahlen und in Details Felder `homeofficemoeglich`, `homeofficetyp` und `homeofficeprozent`. Diese Beobachtung belegt keine Vollständigkeit oder Garantie für jede Stellenangabe; Nutzende prüfen Stellenbeschreibungen und Bedingungen selbst.
 
