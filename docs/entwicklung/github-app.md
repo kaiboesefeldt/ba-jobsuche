@@ -36,4 +36,4 @@ JWT und Installationstoken weder ausgeben noch dauerhaft in Git-Konfiguration, D
 
 Vor einem Schreibzugriff Repository, Branch und aktuelle Änderungen prüfen. Auf Arbeitsbranches committen und pushen; Pull Requests als App erstellen. Der Nutzer prüft und merged. Bei lokal erstellten Commits die Bot-Identität ausdrücklich für den jeweiligen Commit setzen und den in `AGENTS.md` vereinbarten Trailer ergänzen; ein App-Push allein ändert die Git-Autorenschaft nicht.
 
-Die eingeräumten App-Rechte und die Autorenschaft eines PRs bei Bedarf über die API prüfen. Fehlende Berechtigungen oder eine noch ausstehende Bestätigung der Installation melden, statt größere Rechte vorauszusetzen. Branch-Schutz nicht als aktiv annehmen: Bei der Einrichtung dieses privaten Repositorys war `main` nicht geschützt.
+Die eingeräumten App-Rechte und die Autorenschaft eines PRs bei Bedarf über die API prüfen. Fehlende Berechtigungen oder eine noch ausstehende Bestätigung der Installation melden, statt größere Rechte vorauszusetzen. Branch-Schutz nicht als aktiv annehmen; den aktuellen Schutzstatus bei Bedarf prüfen.

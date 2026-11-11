@@ -9,8 +9,6 @@ python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Python' --homeoffic
 python3 skills/ba-jobsuche/scripts/jobsuche.py detail 'REFERENZNUMMER'
 ```
 
-Der frühere Aufruf `python3 -m ba_jobsuche` aus dem Projektverzeichnis entfällt; verwende den oben angegebenen Skriptpfad.
-
 Der optionale Schalter `--homeoffice` setzt den in der Community-Dokumentation beschriebenen API-Parameter `arbeitszeit=ho` für Heim- oder Telearbeit; ohne Schalter wird dieser Filter nicht gesetzt. Der Filter belegt keinen bestimmten Remote-Anteil: Die Stellenbeschreibung darauf prüfen und fehlende Angaben als unklar kennzeichnen. Ohne `--wo` wird kein Ort vorgegeben.
 
 Die Suche ruft automatisch Seiten ab. Standard sind 100 Treffer pro Seite und höchstens 10 Seiten; `--size` und `--max-pages` akzeptieren Werte von 1 bis 100. Das sind Clientgrenzen, keine behaupteten Vorgaben der BA. Bei Erreichen der Seitengrenze ist `complete` falsch. `unexpected_empty_page` kennzeichnet eine vorzeitig leere Seite. `exhausted` bedeutet, dass anhand der API-Antwort keine weitere Seite erkannt wurde, nicht dass die Recherche vollständig oder eine atomare Momentaufnahme ist. `reported_totals` zeigt die pro Seite gemeldeten Trefferzahlen; sie können sich ändern. Duplikate werden anhand von `referenznummer` entfernt. Bei einem Fehler wird kein Teilergebnis als Erfolg ausgegeben.
@@ -31,5 +29,7 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/coverage run -m unittest discover -s tests -
 .venv/bin/ruff check skills/ba-jobsuche/scripts scripts tests
 .venv/bin/ruff format --check skills/ba-jobsuche/scripts scripts tests
 ```
+
+Das [JSON-Schema der Ausgabe](../skills/ba-jobsuche/references/output.schema.json) beschreibt die stabile Ausgabehülle; bei Änderungen an der CLI-Ausgabe Schema, Beispiele und Schema-Tests gemeinsam aktualisieren. Die Schema-Tests validieren tatsächliche CLI-Ausgaben und ungültige Varianten mit der Entwicklungsabhängigkeit `jsonschema`; zur Laufzeit ist sie nicht erforderlich.
 
 Die Tests benötigen kein Netzwerk. Ein optionaler manueller Live-Test ist ein einzelner obiger Suchaufruf mit `--max-pages 1`; er greift auf den BA-Dienst zu und setzt die Beachtung der Nutzungsbedingungen voraus.

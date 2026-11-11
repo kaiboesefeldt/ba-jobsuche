@@ -30,5 +30,6 @@ Hier entsteht eine allgemein nutzbare Agent-Skill zur Recherche von Stellen übe
 - Änderungen mit geeigneten, aussagekräftigen Tests überprüfen. Tests sollen grundsätzlich ohne Netzwerk ausführbar sein; optionale Live-Prüfungen gesondert kennzeichnen und begrenzen.
 - Die Community-Dokumentation der API ist keine Stabilitätszusage. Annahmen über Parameter, Antwortformate und Seitennavigation dokumentieren und bei Änderungen prüfen.
 - Suchergebnisse und Bewertungen trennen; Quellen, Aktualität und erkennbare Grenzen einer Recherche nennen. Suchfilter nicht ohne Grundlage als Nutzerpräferenz setzen.
-- Personenbezogene Daten und Bewerbungsunterlagen nicht an die Jobsuche-API senden oder als Testdaten einchecken. Die Skill führt keine Bewerbung oder Kontaktaufnahme eigenständig aus.
+- Personenbezogene Daten und Bewerbungsunterlagen nicht an die Jobsuche-API senden oder als Testdaten einchecken. Die Skill dient der Datenabfrage; über Bewerbung und Kontaktaufnahme entscheidet das aufrufende Modell anhand des jeweiligen Nutzerauftrags.
+- Dokumentation beschreibt den aktuellen Stand; Hinweise auf frühere Stände oder ersetzte Aufrufe gehören in die Git-Historie, nicht in aktuelle Dokumente.
 - README kurz halten und bei belegbaren Änderungen aktualisieren; ausführliche Dokumentation strukturiert unter `docs/` ablegen.

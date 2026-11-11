@@ -16,6 +16,31 @@ from ba_jobsuche.cli import main
 
 
 class CliTests(unittest.TestCase):
+    def test_help_explains_search_and_detail_inputs(self):
+        for args, expected in (
+            (
+                ["search", "--help"],
+                (
+                    "Search terms",
+                    "Location",
+                    "1-100",
+                    "default: 100",
+                    "default: 10",
+                    "hybrid",
+                ),
+            ),
+            (["detail", "--help"], ("reference number",)),
+        ):
+            with (
+                self.subTest(args=args),
+                contextlib.redirect_stdout(io.StringIO()) as out,
+            ):
+                with self.assertRaises(SystemExit) as caught:
+                    main(args)
+                self.assertEqual(caught.exception.code, 0)
+                for text in expected:
+                    self.assertIn(text, out.getvalue())
+
     def test_search_produces_versioned_json(self):
         out = io.StringIO()
         with (

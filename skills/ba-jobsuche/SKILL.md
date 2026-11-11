@@ -1,19 +1,74 @@
 ---
 name: ba-jobsuche
-description: Verwende diese Skill für die Stellensuche und Stellenangebote der Bundesagentur für Arbeit.
+description: Verwende diese Skill für die Suche nach Jobs und Stellenangeboten beim Suchservice der Bundesagentur für Arbeit.
 ---
 
 # Stellen recherchieren
 
-Ermittle Suchbegriffe und gegebenenfalls Orte aus dem Auftrag. Setze keine weiteren Filter als angenommene Präferenzen. Sende keine persönlichen Daten oder Bewerbungsunterlagen an die Schnittstelle. Führe keine Bewerbung oder Kontaktaufnahme aus.
+Die Skill benötigt Python 3.10 oder neuer und Netzwerkzugriff auf die Jobsuche der Bundesagentur für Arbeit; zusätzliche Python-Pakete sind nicht erforderlich.
 
-Die Skill benötigt Python 3.10 oder neuer und Netzwerkzugriff auf die Jobsuche der Bundesagentur für Arbeit; zusätzliche Python-Pakete sind nicht erforderlich. Suche Stellen und rufe Details mit `scripts/jobsuche.py` ab:
+## Aufruf
+
+Suche Stellen und rufe Details mit `scripts/jobsuche.py` ab:
 
 ```sh
 python3 scripts/jobsuche.py search --was 'Suchbegriff' --wo 'Ort'
 python3 scripts/jobsuche.py detail 'Referenznummer'
 ```
 
-Die Ausgabe ist JSON mit `schema_version` und `ok`; bei Fehlern enthält sie `error` und der Exit-Code ist ungleich null. Wiederhole die Suche gegebenenfalls mit unterschiedlichen Begriffen und führe die Ergebnisse anhand der Referenznummer zusammen. Für Heim- oder Telearbeit nutze auf ausdrücklichen Wunsch `--homeoffice`; der Filter kann sowohl hybride als auch vollständig ortsunabhängige Stellen erfassen. Prüfe in der Stellenbeschreibung den tatsächlichen Remote-Anteil und kennzeichne ihn als unklar, falls er nicht angegeben ist. Untersuche passende Details, bevor du sie bewertest.
+Weitere Parameter beschreibt `--help` beim jeweiligen Unterbefehl.
 
-Berichte Suchbegriffe, Quelle, Abrufzeit, Seiten und erkennbare Grenzen. Unterscheide Stelleninformationen von deiner Einschätzung und nenne Unsicherheiten. Eine erreichte Seitengrenze, Fehler oder widersprüchliche Daten bedeuten, dass Ergebnisse fehlen können. Auch sonst ist keine vollständige Momentaufnahme garantiert.
+```sh
+python3 scripts/jobsuche.py search --help
+python3 scripts/jobsuche.py detail --help
+```
+
+## Ausgabeformat
+
+Das Skript gibt JSON auf der Standardausgabe aus. Wird die Option `--help` übergeben, ist die Ausgabe ein Hilfetext.
+
+Es folgen Beispiele für Ausgaben der Kommandos `search` und `detail`. Sie enthalten fiktive Daten. Die Felder innerhalb von `results` und `result` können variieren.
+
+### Beispiel für `search`
+
+```json
+{
+  "schema_version": 1,
+  "ok": true,
+  "source": "https://www.arbeitsagentur.de/jobsuche/",
+  "retrieved_at": "2026-01-01T12:00:00+00:00",
+  "query": {"was": "Softwareentwicklung", "wo": "Berlin"},
+  "results": [{"referenznummer": "BEISPIEL-123", "titel": "Softwareentwickler"}],
+  "pages_fetched": 1,
+  "reported_totals": [1],
+  "stop_reason": "exhausted",
+  "complete": true
+}
+```
+
+### Beispiel für `detail`
+
+```json
+{
+  "schema_version": 1,
+  "ok": true,
+  "source": "https://www.arbeitsagentur.de/jobsuche/",
+  "retrieved_at": "2026-01-01T12:00:00+00:00",
+  "reference": "BEISPIEL-123",
+  "result": {"titel": "Softwareentwickler", "stellenbeschreibung": "Fiktive Stellenbeschreibung"}
+}
+```
+
+### JSON-Schema der Ausgabe
+
+Das [JSON-Schema](references/output.schema.json) beschreibt die stabile Ausgabehülle für Suche, Detailabfrage und Fehler. Die Felder der Schnittstelle können variieren.
+
+## Fehlerbehandlung
+
+Bei Fehlern hat `ok` den Wert `false` und der Exit-Code ungleich null; es wird kein Teilergebnis ausgegeben.
+
+Eine erreichte Seitengrenze, Fehler oder widersprüchliche Daten bedeuten, dass Ergebnisse fehlen können. Auch sonst ist keine vollständige Momentaufnahme garantiert.
+
+# Hinweis
+
+Sende keine persönlichen Daten oder Bewerbungsunterlagen an die Schnittstelle.
