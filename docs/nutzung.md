@@ -1,13 +1,15 @@
 # Nutzung und Schnittstelle
 
-Python 3.10 oder neuer; zur Laufzeit ist nur die Standardbibliothek erforderlich. Vom Projektverzeichnis aus:
+Python 3.10 oder neuer; zur Laufzeit ist nur die Standardbibliothek erforderlich. Vom Projektverzeichnis aus (bei einer separat bereitgestellten Skill den absoluten Pfad zu `scripts/jobsuche.py` verwenden):
 
 ```sh
-python3 -m ba_jobsuche search --was 'Softwareentwickler' --wo 'Berlin'
-python3 -m ba_jobsuche search --was 'Python' --size 50 --max-pages 20
-python3 -m ba_jobsuche search --was 'Python' --homeoffice
-python3 -m ba_jobsuche detail 'REFERENZNUMMER'
+python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Softwareentwickler' --wo 'Berlin'
+python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Python' --size 50 --max-pages 20
+python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Python' --homeoffice
+python3 skills/ba-jobsuche/scripts/jobsuche.py detail 'REFERENZNUMMER'
 ```
+
+Der frühere Aufruf `python3 -m ba_jobsuche` aus dem Projektverzeichnis entfällt; verwende den oben angegebenen Skriptpfad.
 
 Der optionale Schalter `--homeoffice` setzt den in der Community-Dokumentation beschriebenen API-Parameter `arbeitszeit=ho` für Heim- oder Telearbeit; ohne Schalter wird dieser Filter nicht gesetzt. Der Filter belegt keinen bestimmten Remote-Anteil: Die Stellenbeschreibung darauf prüfen und fehlende Angaben als unklar kennzeichnen. Ohne `--wo` wird kein Ort vorgegeben.
 
@@ -26,8 +28,8 @@ python3 -m venv .venv
 .venv/bin/pip install -r requirements-dev.txt
 PYTHONDONTWRITEBYTECODE=1 .venv/bin/coverage run -m unittest discover -s tests -v
 .venv/bin/coverage report
-.venv/bin/ruff check ba_jobsuche scripts tests
-.venv/bin/ruff format --check ba_jobsuche scripts tests
+.venv/bin/ruff check skills/ba-jobsuche/scripts scripts tests
+.venv/bin/ruff format --check skills/ba-jobsuche/scripts scripts tests
 ```
 
 Die Tests benötigen kein Netzwerk. Ein optionaler manueller Live-Test ist ein einzelner obiger Suchaufruf mit `--max-pages 1`; er greift auf den BA-Dienst zu und setzt die Beachtung der Nutzungsbedingungen voraus.

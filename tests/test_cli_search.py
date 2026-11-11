@@ -1,3 +1,11 @@
+import runpy
+import sys
+from pathlib import Path
+
+sys.path.insert(
+    0, str(Path(__file__).resolve().parents[1] / "skills/ba-jobsuche/scripts")
+)
+
 import contextlib
 import io
 import json
@@ -122,4 +130,18 @@ class CliTests(unittest.TestCase):
             self.assertRaises(SystemExit) as caught,
         ):
             runpy.run_module("ba_jobsuche", run_name="__main__")
+        self.assertEqual(caught.exception.code, 7)
+
+
+class ScriptEntrypointTests(unittest.TestCase):
+    def test_script_entrypoint_returns_command_status(self):
+        script = (
+            Path(__file__).resolve().parents[1]
+            / "skills/ba-jobsuche/scripts/jobsuche.py"
+        )
+        with (
+            patch("ba_jobsuche.cli.main", return_value=7),
+            self.assertRaises(SystemExit) as caught,
+        ):
+            runpy.run_path(str(script), run_name="__main__")
         self.assertEqual(caught.exception.code, 7)

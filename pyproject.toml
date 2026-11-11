@@ -10,7 +10,7 @@ max-complexity = 5
 
 [tool.coverage.run]
 branch = true
-source = ["ba_jobsuche"]
+source = ["skills/ba-jobsuche/scripts"]
 
 [tool.coverage.report]
 show_missing = true
