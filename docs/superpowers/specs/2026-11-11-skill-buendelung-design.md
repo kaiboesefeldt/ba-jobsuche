@@ -6,7 +6,7 @@ Die Skill ist mit Python ab 3.10 und der Standardbibliothek samt Suche und Detai
 
 ## Varianten und Entscheidung
 
-Ein gemeinsames Paket im Skill-Verzeichnis vermeidet eine zweite Kopie und lässt die bisherigen Modulgrenzen bestehen. Ein eigenständiges monolithisches Skript würde diese Grenzen auflösen; eine Kopie des Pakets im Repository und in der Skill müsste synchron gehalten werden. Daher liegt das einzige Paket unter `skills/ba-jobsuche/scripts/ba_jobsuche`; `scripts/jobsuche.py` startet dessen CLI. Der absolute Skriptpfad macht den Aufruf unabhängig vom Arbeitsverzeichnis und funktioniert auch bei Leerzeichen im Pfad.
+Ein gemeinsames Paket im Skill-Verzeichnis vermeidet eine zweite Kopie und lässt die bisherigen Modulgrenzen bestehen. Ein eigenständiges monolithisches Skript würde diese Grenzen auflösen; eine Kopie des Pakets im Repository und in der Skill müsste synchron gehalten werden. Daher liegt das einzige Paket unter `skills/ba-jobsuche/scripts/ba_jobsuche`; `scripts/jobsuche.py` startet dessen CLI. Die Skill verweist gemäß Agent-Skills-Konvention auf `scripts/jobsuche.py` relativ zu ihrem Wurzelverzeichnis. Bei einem anderen Arbeitsverzeichnis wird dieser Pfad zum tatsächlichen Skill-Verzeichnis aufgelöst; so funktioniert der Aufruf auch bei Leerzeichen im Pfad.
 
 ## Prüfung
 

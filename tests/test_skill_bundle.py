@@ -13,7 +13,7 @@ class SkillBundleTest(unittest.TestCase):
         source = Path(__file__).resolve().parents[1] / "skills" / "ba-jobsuche"
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            skill = root / "installed skill"
+            skill = root / "installed skill" / "ba-jobsuche"
             shutil.copytree(source, skill, ignore=shutil.ignore_patterns("__pycache__"))
             environment = os.environ.copy()
             environment.pop("PYTHONPATH", None)
@@ -28,6 +28,25 @@ class SkillBundleTest(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertEqual(json.loads(result.stdout)["error"]["code"], "invalid_input")
 
+    def test_documented_relative_script_path_from_skill_directory(self):
+        source = Path(__file__).resolve().parents[1] / "skills" / "ba-jobsuche"
+        with tempfile.TemporaryDirectory() as directory:
+            skill = Path(directory) / "ba-jobsuche"
+            shutil.copytree(source, skill, ignore=shutil.ignore_patterns("__pycache__"))
+            environment = os.environ.copy()
+            environment.pop("PYTHONPATH", None)
+            result = subprocess.run(
+                [sys.executable, "scripts/jobsuche.py", "--help"],
+                cwd=skill,
+                env=environment,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("search", result.stdout)
+        self.assertIn("detail", result.stdout)
+
     def test_isolated_search_and_detail_with_stubbed_api(self):
         source = Path(__file__).resolve().parents[1] / "skills" / "ba-jobsuche"
         harness = """
@@ -41,7 +60,7 @@ with patch('ba_jobsuche.cli.fetch_search', return_value={'maxErgebnisse': 0}), p
 """
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            skill = root / "installed skill"
+            skill = root / "installed skill" / "ba-jobsuche"
             shutil.copytree(source, skill, ignore=shutil.ignore_patterns("__pycache__"))
             script = skill / "scripts" / "jobsuche.py"
             environment = os.environ.copy()
