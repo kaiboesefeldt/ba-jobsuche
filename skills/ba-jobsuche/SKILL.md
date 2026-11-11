@@ -1,13 +1,13 @@
 ---
 name: ba-jobsuche
-description: Recherchiert Stellenangebote über die Jobsuche der Bundesagentur für Arbeit und ruft Details ab. Verwenden, wenn Stellen gesucht oder konkrete BA-Angebote untersucht werden sollen.
+description: Verwende diese Skill, um Stellenangebote über die Jobsuche der Bundesagentur für Arbeit zu recherchieren oder Details zu konkreten Stellenangeboten abzurufen.
 ---
 
 # Stellen recherchieren
 
-Ermittle Suchbegriffe und gegebenenfalls Orte aus dem Auftrag. Setze keine weiteren Filter als angenommene Präferenzen. Sende keine persönlichen Daten oder Bewerbungsunterlagen an die API. Führe keine Bewerbung oder Kontaktaufnahme aus.
+Ermittle Suchbegriffe und gegebenenfalls Orte aus dem Auftrag. Setze keine weiteren Filter als angenommene Präferenzen. Sende keine persönlichen Daten oder Bewerbungsunterlagen an die Schnittstelle. Führe keine Bewerbung oder Kontaktaufnahme aus.
 
-Die Skill benötigt Python 3.10 oder neuer und Netzwerkzugriff auf die BA-Jobsuche; zusätzliche Python-Pakete sind nicht erforderlich. Das Skript `scripts/jobsuche.py` führt Suche und Detailabfrage aus. Die folgenden Pfade beziehen sich auf das Skill-Verzeichnis:
+Die Skill benötigt Python 3.10 oder neuer und Netzwerkzugriff auf die Jobsuche der Bundesagentur für Arbeit; zusätzliche Python-Pakete sind nicht erforderlich. Das Skript `scripts/jobsuche.py` führt Suche und Detailabfrage aus. Die folgenden Pfade beziehen sich auf das Skill-Verzeichnis:
 
 ```sh
 python3 scripts/jobsuche.py search --was 'Suchbegriff' --wo 'Ort'
