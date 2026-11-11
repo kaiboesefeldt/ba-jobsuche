@@ -21,7 +21,7 @@ def search_command(args: argparse.Namespace) -> dict[str, Any]:
     if args.wo:
         query["wo"] = args.wo
     if args.homeoffice:
-        query["arbeitszeit"] = "ho"
+        query["homeoffice"] = f"prozentual_{args.homeoffice[:-1]}"
     return {"query": query, **search(fetch_search, query, args.size, args.max_pages)}
 
 
@@ -50,8 +50,10 @@ def main(argv: list[str] | None = None) -> int:
     find.add_argument("--wo", help="Location; omit for no location filter")
     find.add_argument(
         "--homeoffice",
-        action="store_true",
-        help="Filter for home or telework; may include hybrid jobs",
+        nargs="?",
+        const="100%",
+        choices=("0%", "25%", "50%", "100%"),
+        help="Home office filter: 0%%, 25%%, 50%%, 100%% (default: 100%%)",
     )
     find.add_argument(
         "--size",

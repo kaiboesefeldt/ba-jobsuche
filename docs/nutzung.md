@@ -5,11 +5,11 @@ Python 3.10 oder neuer; zur Laufzeit ist nur die Standardbibliothek erforderlich
 ```sh
 python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Softwareentwickler' --wo 'Berlin'
 python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Python' --size 50 --max-pages 20
-python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Python' --homeoffice
+python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Python' --homeoffice 50%
 python3 skills/ba-jobsuche/scripts/jobsuche.py detail 'REFERENZNUMMER'
 ```
 
-Der optionale Schalter `--homeoffice` setzt den in der Community-Dokumentation beschriebenen API-Parameter `arbeitszeit=ho` für Heim- oder Telearbeit; ohne Schalter wird dieser Filter nicht gesetzt. Der Filter belegt keinen bestimmten Remote-Anteil: Die Stellenbeschreibung darauf prüfen und fehlende Angaben als unklar kennzeichnen. Ohne `--wo` wird kein Ort vorgegeben.
+Der optionale Schalter `--homeoffice` akzeptiert `0%`, `25%`, `50%` oder `100%`; ohne Wert gilt `100%`. Andere Werte sind ein Eingabefehler. Die Werte werden auf `homeoffice=prozentual_0`, `prozentual_25`, `prozentual_50` beziehungsweise `prozentual_100` abgebildet. Ohne Schalter wird kein Homeoffice-Filter gesetzt; ohne `--wo` wird kein Ort vorgegeben. Live-Vergleiche sprechen für einen Mindestanteil, die genaue Semantik und Vollständigkeit sind jedoch nicht verbindlich dokumentiert. Angaben und Bedingungen in den Stellendetails prüfen; fehlende Angaben bleiben unklar.
 
 Die Suche ruft automatisch Seiten ab. Standard sind 100 Treffer pro Seite und höchstens 10 Seiten; `--size` und `--max-pages` akzeptieren Werte von 1 bis 100. Das sind Clientgrenzen, keine behaupteten Vorgaben der BA. Bei Erreichen der Seitengrenze ist `complete` falsch. `unexpected_empty_page` kennzeichnet eine vorzeitig leere Seite. `exhausted` bedeutet, dass anhand der API-Antwort keine weitere Seite erkannt wurde, nicht dass die Recherche vollständig oder eine atomare Momentaufnahme ist. `reported_totals` zeigt die pro Seite gemeldeten Trefferzahlen; sie können sich ändern. Duplikate werden anhand von `referenznummer` entfernt. Bei einem Fehler wird kein Teilergebnis als Erfolg ausgegeben.
 
@@ -26,10 +26,16 @@ python3 -m venv .venv
 .venv/bin/pip install -r requirements-dev.txt
 PYTHONDONTWRITEBYTECODE=1 .venv/bin/coverage run -m unittest discover -s tests -v
 .venv/bin/coverage report
-.venv/bin/ruff check skills/ba-jobsuche/scripts scripts tests
-.venv/bin/ruff format --check skills/ba-jobsuche/scripts scripts tests
+.venv/bin/ruff check skills/ba-jobsuche/scripts scripts tests integration_tests
+.venv/bin/ruff format --check skills/ba-jobsuche/scripts scripts tests integration_tests
 ```
 
 Das [JSON-Schema der Ausgabe](../skills/ba-jobsuche/references/output.schema.json) beschreibt die stabile Ausgabehülle; bei Änderungen an der CLI-Ausgabe Schema, Beispiele und Schema-Tests gemeinsam aktualisieren. Die Schema-Tests validieren tatsächliche CLI-Ausgaben und ungültige Varianten mit der Entwicklungsabhängigkeit `jsonschema`; zur Laufzeit ist sie nicht erforderlich.
 
-Die Tests benötigen kein Netzwerk. Ein optionaler manueller Live-Test ist ein einzelner obiger Suchaufruf mit `--max-pages 1`; er greift auf den BA-Dienst zu und setzt die Beachtung der Nutzungsbedingungen voraus.
+Die regulären Tests benötigen kein Netzwerk. Die separat auszuführenden Integrationstests greifen auf den BA-Dienst zu:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s integration_tests -v
+```
+
+Die zwei Tests senden zusammen höchstens sechs Anfragen: je eine Suche, einen allgemeinen Detailabruf und höchstens drei Detailabrufe für Homeoffice-Treffer. Sie prüfen aktuelle strukturierte Detailangaben, nicht die vertraglichen Bedingungen; fehlende oder widersprüchliche Angaben führen zum Fehlschlag. Leere Ergebnisse, Änderungen der externen Daten oder Dienstausfälle können den Test ebenfalls fehlschlagen lassen und sind gesondert zu untersuchen. Die Nutzungsbedingungen sind zu beachten.

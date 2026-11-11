@@ -26,7 +26,7 @@ class CliTests(unittest.TestCase):
                     "1-100",
                     "default: 100",
                     "default: 10",
-                    "hybrid",
+                    "100%",
                 ),
             ),
             (["detail", "--help"], ("reference number",)),
@@ -64,7 +64,18 @@ class CliTests(unittest.TestCase):
     def test_homeoffice_is_sent_only_when_requested(self):
         for options, expected in [
             ([], {"was": "Python"}),
-            (["--homeoffice"], {"was": "Python", "arbeitszeit": "ho"}),
+            (["--homeoffice"], {"was": "Python", "homeoffice": "prozentual_100"}),
+            *[
+                (
+                    ["--homeoffice", f"{value}%"],
+                    {"was": "Python", "homeoffice": f"prozentual_{value}"},
+                )
+                for value in (0, 25, 50, 100)
+            ],
+            (
+                ["--homeoffice", "--max-pages", "1"],
+                {"was": "Python", "homeoffice": "prozentual_100"},
+            ),
         ]:
             with self.subTest(options=options):
                 out = io.StringIO()
@@ -81,6 +92,20 @@ class CliTests(unittest.TestCase):
                 self.assertEqual(
                     fetch.call_args.args[0], {**expected, "page": 1, "size": 100}
                 )
+
+    def test_invalid_homeoffice_value_rejected_without_request(self):
+        for value in ("10%", "50", "", "101%", "abc"):
+            with (
+                self.subTest(value=value),
+                patch("ba_jobsuche.cli.fetch_search") as fetch,
+                contextlib.redirect_stdout(io.StringIO()) as out,
+            ):
+                status = main(["search", "--was", "Python", "--homeoffice", value])
+                self.assertEqual(status, 1)
+                self.assertEqual(
+                    json.loads(out.getvalue())["error"]["code"], "invalid_input"
+                )
+                fetch.assert_not_called()
 
     def test_location_and_nonempty_result(self):
         out = io.StringIO()

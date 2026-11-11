@@ -16,6 +16,8 @@ python3 scripts/jobsuche.py search --was 'Suchbegriff' --wo 'Ort'
 python3 scripts/jobsuche.py detail 'Referenznummer'
 ```
 
+`--homeoffice` akzeptiert optional `0%`, `25%`, `50%` oder `100%`; ohne Wert gilt `100%`. Die Werte werden als `homeoffice=prozentual_0`, `prozentual_25`, `prozentual_50` beziehungsweise `prozentual_100` an die API übermittelt. Ohne Schalter wird kein Homeoffice-Filter gesetzt. Die genaue Bedeutung und Vollständigkeit des Filters ist nicht verbindlich dokumentiert; prüfe die Stellendetails und kennzeichne fehlende Angaben als unklar.
+
 Weitere Parameter beschreibt `--help` beim jeweiligen Unterbefehl.
 
 ```sh
