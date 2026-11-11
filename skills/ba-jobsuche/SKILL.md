@@ -12,9 +12,11 @@ Die Skill benötigt Python 3.10 oder neuer und Netzwerkzugriff auf die Jobsuche 
 Suche Stellen und rufe Details mit `scripts/jobsuche.py` ab:
 
 ```sh
-python3 scripts/jobsuche.py search --was 'Suchbegriff' --wo 'Ort'
+python3 scripts/jobsuche.py search --was 'Suchbegriff' --wo 'Ort' --homeoffice 25%
 python3 scripts/jobsuche.py detail 'Referenznummer'
 ```
+
+`--homeoffice` akzeptiert optional `0%`, `25%`, `50%` oder `100%`; ohne Wert gilt `100%`.
 
 Weitere Parameter beschreibt `--help` beim jeweiligen Unterbefehl.
 
