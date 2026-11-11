@@ -1,3 +1,10 @@
+import sys
+from pathlib import Path
+
+sys.path.insert(
+    0, str(Path(__file__).resolve().parents[1] / "skills/ba-jobsuche/scripts")
+)
+
 import io
 import unittest
 from unittest.mock import patch

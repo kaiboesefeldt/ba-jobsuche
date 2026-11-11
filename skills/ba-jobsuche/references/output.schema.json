@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BA Jobsuche CLI output version 1",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "description": "Version der stabilen Ausgabehülle."
+        },
+        "ok": {
+          "const": true,
+          "description": "Gibt an, ob die Abfrage erfolgreich war."
+        },
+        "source": {
+          "type": "string",
+          "description": "URL der Jobsuche als Datenquelle."
+        },
+        "retrieved_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Abrufzeitpunkt in UTC."
+        },
+        "query": {
+          "type": "object",
+          "required": [
+            "was"
+          ],
+          "properties": {
+            "was": {
+              "type": "string",
+              "description": "Suchbegriff."
+            },
+            "wo": {
+              "type": "string",
+              "description": "Optionaler Suchort."
+            },
+            "arbeitszeit": {
+              "type": "string",
+              "description": "Optionaler Arbeitszeitfilter; ho steht für Heim- oder Telearbeit."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Suchparameter, die an die Schnittstelle übergeben werden, ohne Seitenparameter."
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "referenznummer"
+            ],
+            "properties": {
+              "referenznummer": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Referenznummer des Treffers; dient zur Deduplizierung."
+              }
+            }
+          },
+          "description": "Suchtreffer mit unveränderten Feldern der Schnittstelle; anhand der Referenznummer dedupliziert."
+        },
+        "pages_fetched": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Anzahl der erfolgreich abgerufenen und verarbeiteten Suchseiten."
+        },
+        "reported_totals": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "Von der Schnittstelle pro abgerufener Seite gemeldete Gesamtzahlen; diese können sich ändern."
+        },
+        "stop_reason": {
+          "enum": [
+            "exhausted",
+            "page_limit",
+            "unexpected_empty_page"
+          ],
+          "description": "Abbruchgrund: exhausted, wenn anhand der Antwort keine weitere Seite erkannt wurde; page_limit bei erreichter Seitengrenze; unexpected_empty_page bei vorzeitig leerer Seite."
+        },
+        "complete": {
+          "type": "boolean",
+          "description": "Nur bei exhausted wahr; garantiert keine vollständige oder atomare Momentaufnahme."
+        }
+      },
+      "required": [
+        "schema_version",
+        "ok",
+        "source",
+        "retrieved_at",
+        "query",
+        "results",
+        "pages_fetched",
+        "reported_totals",
+        "stop_reason",
+        "complete"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "stop_reason": {
+                "const": "exhausted"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "complete": {
+                "const": true
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "complete": {
+                "const": false
+              }
+            }
+          }
+        }
+      ],
+      "description": "Erfolgreiche Suchabfrage."
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "description": "Version der stabilen Ausgabehülle."
+        },
+        "ok": {
+          "const": true,
+          "description": "Gibt an, ob die Abfrage erfolgreich war."
+        },
+        "source": {
+          "type": "string",
+          "description": "URL der Jobsuche als Datenquelle."
+        },
+        "retrieved_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Abrufzeitpunkt in UTC."
+        },
+        "reference": {
+          "type": "string",
+          "description": "Angefragte Referenznummer des Stellenangebots."
+        },
+        "result": {
+          "type": "object",
+          "description": "Detaildaten der Schnittstelle; deren Felder können sich ändern."
+        }
+      },
+      "required": [
+        "schema_version",
+        "ok",
+        "source",
+        "retrieved_at",
+        "reference",
+        "result"
+      ],
+      "additionalProperties": false,
+      "description": "Erfolgreiche Detailabfrage."
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "description": "Version der stabilen Ausgabehülle."
+        },
+        "ok": {
+          "const": false,
+          "description": "Gibt an, ob die Abfrage erfolgreich war."
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "description": "Maschinenlesbarer Fehlercode."
+            },
+            "message": {
+              "type": "string",
+              "description": "Englischsprachige Fehlermeldung."
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "additionalProperties": false,
+          "description": "Fehlerangaben; ein Teilergebnis wird nicht als Erfolg ausgegeben."
+        }
+      },
+      "required": [
+        "schema_version",
+        "ok",
+        "error"
+      ],
+      "additionalProperties": false,
+      "description": "Fehlgeschlagene Abfrage oder ungültige Eingabe."
+    }
+  ],
+  "description": "Versionierte JSON-Ausgabe des Skripts für Suche, Detailabfrage und Fehler."
+}

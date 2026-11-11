@@ -45,16 +45,28 @@ def dispatch(args: argparse.Namespace) -> dict[str, Any]:
 def main(argv: list[str] | None = None) -> int:
     parser = Parser(description="Search BA Jobsuche")
     sub = parser.add_subparsers(dest="command", required=True)
-    find = sub.add_parser("search")
-    find.add_argument("--was", required=True)
-    find.add_argument("--wo")
+    find = sub.add_parser("search", help="Search job offers")
+    find.add_argument("--was", required=True, help="Search terms (required)")
+    find.add_argument("--wo", help="Location; omit for no location filter")
     find.add_argument(
-        "--homeoffice", action="store_true", help="Filter for home or telework"
+        "--homeoffice",
+        action="store_true",
+        help="Filter for home or telework; may include hybrid jobs",
     )
-    find.add_argument("--size", type=int, default=DEFAULT_PAGE_SIZE)
-    find.add_argument("--max-pages", type=int, default=DEFAULT_MAX_PAGES)
-    detail = sub.add_parser("detail")
-    detail.add_argument("reference")
+    find.add_argument(
+        "--size",
+        type=int,
+        default=DEFAULT_PAGE_SIZE,
+        help="Results per page, 1-100 (default: 100)",
+    )
+    find.add_argument(
+        "--max-pages",
+        type=int,
+        default=DEFAULT_MAX_PAGES,
+        help="Maximum pages to fetch, 1-100 (default: 10)",
+    )
+    detail = sub.add_parser("detail", help="Fetch a job offer by reference number")
+    detail.add_argument("reference", help="Job offer reference number")
     try:
         args = parser.parse_args(argv)
         now = datetime.now(timezone.utc).isoformat()

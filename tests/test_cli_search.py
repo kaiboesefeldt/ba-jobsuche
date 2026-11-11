@@ -1,3 +1,11 @@
+import runpy
+import sys
+from pathlib import Path
+
+sys.path.insert(
+    0, str(Path(__file__).resolve().parents[1] / "skills/ba-jobsuche/scripts")
+)
+
 import contextlib
 import io
 import json
@@ -8,6 +16,31 @@ from ba_jobsuche.cli import main
 
 
 class CliTests(unittest.TestCase):
+    def test_help_explains_search_and_detail_inputs(self):
+        for args, expected in (
+            (
+                ["search", "--help"],
+                (
+                    "Search terms",
+                    "Location",
+                    "1-100",
+                    "default: 100",
+                    "default: 10",
+                    "hybrid",
+                ),
+            ),
+            (["detail", "--help"], ("reference number",)),
+        ):
+            with (
+                self.subTest(args=args),
+                contextlib.redirect_stdout(io.StringIO()) as out,
+            ):
+                with self.assertRaises(SystemExit) as caught:
+                    main(args)
+                self.assertEqual(caught.exception.code, 0)
+                for text in expected:
+                    self.assertIn(text, out.getvalue())
+
     def test_search_produces_versioned_json(self):
         out = io.StringIO()
         with (
@@ -122,4 +155,18 @@ class CliTests(unittest.TestCase):
             self.assertRaises(SystemExit) as caught,
         ):
             runpy.run_module("ba_jobsuche", run_name="__main__")
+        self.assertEqual(caught.exception.code, 7)
+
+
+class ScriptEntrypointTests(unittest.TestCase):
+    def test_script_entrypoint_returns_command_status(self):
+        script = (
+            Path(__file__).resolve().parents[1]
+            / "skills/ba-jobsuche/scripts/jobsuche.py"
+        )
+        with (
+            patch("ba_jobsuche.cli.main", return_value=7),
+            self.assertRaises(SystemExit) as caught,
+        ):
+            runpy.run_path(str(script), run_name="__main__")
         self.assertEqual(caught.exception.code, 7)

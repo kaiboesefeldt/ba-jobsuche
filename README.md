@@ -3,7 +3,7 @@
 Eine deutschsprachige Agent-Skill zur persönlichen Recherche von Stellenangeboten über die inoffizielle Schnittstelle der Bundesagentur für Arbeit. Python 3.10 oder neuer ist erforderlich; zur Laufzeit werden keine externen Bibliotheken benötigt.
 
 ```sh
-python3 -m ba_jobsuche search --was 'Softwareentwickler' --wo 'Berlin'
+python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Softwareentwickler' --wo 'Berlin'
 ```
 
 Die [Skill](skills/ba-jobsuche/SKILL.md) beschreibt den Rechercheablauf; [Nutzung und Schnittstelle](docs/nutzung.md) erläutern Ausgabe, Seitennavigation, Tests und Grenzen. Die API ist inoffiziell dokumentiert und kann sich ändern. Nutzende sind für die Einhaltung der Bedingungen ihrer konkreten Nutzung verantwortlich.
