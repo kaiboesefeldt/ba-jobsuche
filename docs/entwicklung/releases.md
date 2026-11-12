@@ -1,0 +1,9 @@
+# Versionen und Releases
+
+Die einzige Versionsquelle ist `skills/ba-jobsuche/VERSION`. Jeder PR erhöht sie gegenüber dem aktuellen `main`-Stand; vor dem ersten Release ist `1.0.0` vorgesehen. Die Regeln für Major, Minor und Patch stehen im [Kompatibilitätsvertrag](../nutzung.md#kompatibilität-und-versionierung). Lege für jede Version `docs/releases/<version>.md` mit aussagekräftigen Änderungshinweisen an, insbesondere für API-Korrekturen und inkompatible Änderungen.
+
+Der Workflow prüft bei Pull Requests die Version gegen die Zielbasis. Nach einem Push auf `main` prüft er den vorherigen Commit und veröffentlicht ein stabiles GitHub-Release mit Tag `v<version>` auf dem auslösenden Commit. Tag und Release dürfen nicht bereits existieren. Parallele Veröffentlichungen werden nicht gegenseitig abgebrochen. Workflow-Fehler sind im Actions-Lauf sichtbar.
+
+Damit die Prüfung einen Merge tatsächlich verhindern kann, muss `Version prüfen` in den Repository-Regeln als erforderlicher Check konfiguriert sein. Eine aktuelle Zielbasis ist für konkurrierende PRs erforderlich; der Workflow allein erzwingt beides nicht. Eine Merge Queue wird vom Workflow nicht unterstützt. Ein fehlgeschlagener Lauf nach einem Merge macht diesen nicht rückgängig.
+
+Bei einem fehlgeschlagenen Release zuerst Actions-Ausgabe, Commit, Versionsdatei, Hinweise und vorhandenes Tag/Release prüfen. Ein bestehendes Tag darf nicht verschoben oder ein Release still überschrieben werden. Ein Lauf kann nach Behebung einer vorübergehenden Ursache erneut gestartet werden; ein schon angelegtes Tag oder Release erfordert vorher eine bewusste manuelle Klärung. Existiert das korrekte Tag bereits, aber noch kein Release, nach Prüfung des Ziel-Commits das Release mit den zugehörigen Versionshinweisen für dieses bestehende Tag manuell erstellen. Keine andere Commit-Version unter demselben Tag veröffentlichen.

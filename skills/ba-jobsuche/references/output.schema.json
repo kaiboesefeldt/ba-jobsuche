@@ -36,10 +36,6 @@
               "type": "string",
               "description": "Optionaler Suchort; bei mehreren Angaben ein JSON-kodiertes Array der Originalangaben als Zeichenkette."
             },
-            "arbeitszeit": {
-              "type": "string",
-              "description": "Optionaler Arbeitszeitfilter; ho steht für Heim- oder Telearbeit."
-            },
             "umkreis": {
               "type": "integer",
               "minimum": 0,

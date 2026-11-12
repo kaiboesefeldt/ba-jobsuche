@@ -80,3 +80,7 @@ Eine erreichte Seitengrenze, Fehler oder widersprüchliche Daten bedeuten, dass 
 # Hinweis
 
 Sende keine persönlichen Daten oder Bewerbungsunterlagen an die Schnittstelle.
+
+## Version und Aktualisierung
+
+Die installierte Version steht in `VERSION`. Aktualisiere die Skill ausschließlich auf ausdrücklichen Auftrag; folge dazu [der Update-Anleitung](references/update.md). Prüfe bei einem vermuteten API-Fehler, ob ein neueres stabiles Release und dessen Hinweise eine passende Korrektur erkennen lassen. Melde das Ergebnis und seine Grenzen, auch wenn keine Aussage möglich ist. Installiere in diesem Fall ohne ausdrücklichen Update-Auftrag keine neue Version. Bei normaler Suche ist keine Versionsprüfung erforderlich.

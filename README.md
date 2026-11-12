@@ -10,7 +10,7 @@ Zur Installation kannst du deinem Agenten sagen:
 
 > Installiere die BA-Jobsuche-Skill aus https://github.com/kaiboesefeldt/ba-jobsuche und nutze die Installationsanleitung im Repository.
 
-Die [Installationsanleitung für Agenten](docs/installation.md) beschreibt das Vorgehen und die Voraussetzungen.
+Die [Installationsanleitung für Agenten](docs/installation.md) beschreibt das Vorgehen, Updates und die Voraussetzungen. Veröffentlichte Versionen stehen in den [Releases](https://github.com/kaiboesefeldt/ba-jobsuche/releases).
 
 Mehrere `--was`- und `--wo`-Angaben durchsuchen alle Kombinationen. Die [Skill](skills/ba-jobsuche/SKILL.md) beschreibt den Rechercheablauf; [Nutzung und Schnittstelle](docs/nutzung.md) erläutern Ausgabe, Seitennavigation, Tests und Grenzen. Die API ist inoffiziell dokumentiert und kann sich ändern. Nutzende sind für die Einhaltung der Bedingungen ihrer konkreten Nutzung verantwortlich.
 

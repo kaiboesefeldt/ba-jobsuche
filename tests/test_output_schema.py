@@ -90,6 +90,9 @@ class OutputSchemaTests(unittest.TestCase):
         cases.append(
             {"schema_version": 1, "ok": False, "error": {"code": 12, "message": "x"}}
         )
+        unsupported_filter = copy.deepcopy(valid)
+        unsupported_filter["query"]["arbeitszeit"] = "ho"
+        cases.append(unsupported_filter)
         for case in cases:
             with self.subTest(case=case):
                 self.assertFalse(self.validator.is_valid(case))
