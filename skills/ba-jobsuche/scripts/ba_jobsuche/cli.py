@@ -37,45 +37,45 @@ def display_values(values: list[str]) -> str:
     return values[0] if len(values) == 1 else json.dumps(values, ensure_ascii=False)
 
 
-def search_queries(
+def prepare_search(
     args: argparse.Namespace,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     locations = args.wo or []
     if any(not value.strip() for value in [*args.was, *locations]):
         raise ValueError("Search text and location must not be empty")
     parsed_locations = [parse_location(value) for value in locations] or [{}]
-    query: dict[str, Any] = {"was": display_values(args.was)}
+    output_query: dict[str, Any] = {"was": display_values(args.was)}
     if len(locations) == 1:
-        query.update(parsed_locations[0])
+        output_query.update(parsed_locations[0])
     elif locations:
-        query["wo"] = display_values(locations)
+        output_query["wo"] = display_values(locations)
     common = {}
     if args.homeoffice:
-        query["homeoffice"] = args.homeoffice
+        output_query["homeoffice"] = args.homeoffice
         common["homeoffice"] = f"prozentual_{args.homeoffice[:-1]}"
-    queries = [
+    api_queries = [
         {"was": term, **location, **common}
         for term, location in product(args.was, parsed_locations)
     ]
-    return query, queries
+    return output_query, api_queries
 
 
 def search_command(args: argparse.Namespace) -> dict[str, Any]:
-    query, queries = search_queries(args)
+    output_query, api_queries = prepare_search(args)
     results: list[dict[str, Any]] = []
     seen: set[str] = set()
     pages = 0
     totals: list[int] = []
     reasons = {"exhausted": 0, "page_limit": 1, "unexpected_empty_page": 2}
     reason = "exhausted"
-    for api_query in queries:
+    for api_query in api_queries:
         part = search(fetch_search, api_query, args.size, args.max_pages)
         add_unique(part["results"], results, seen)
         pages += part["pages_fetched"]
         totals.extend(part["reported_totals"])
         reason = max((reason, part["stop_reason"]), key=reasons.__getitem__)
     return {
-        "query": query,
+        "query": output_query,
         "results": results,
         "pages_fetched": pages,
         "reported_totals": totals,
