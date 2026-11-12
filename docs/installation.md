@@ -1,12 +1,12 @@
 # Installation der BA-Jobsuche-Skill für Agenten
 
-Diese Anleitung richtet sich an den Agenten, der die Skill im Auftrag einer Person installiert. Sie ist auch für Menschen lesbar. Quelle ist das Repository <https://github.com/kaiboesefeldt/ba-jobsuche>, Skill-Pfad `skills/ba-jobsuche/`. Das Verzeichnis enthält `SKILL.md`, `scripts/jobsuche.py`, das Python-Paket `scripts/ba_jobsuche/` und `references/`. Installiere das **ganze Verzeichnis**; die `SKILL.md` allein reicht nicht.
+Diese Anleitung richtet sich an den Agenten, der die Skill im Auftrag einer Person installiert. Sie ist auch für Menschen lesbar. Quelle ist das Repository <https://github.com/kaiboesefeldt/ba-jobsuche>, Skill-Pfad `skills/ba-jobsuche/`. Das Verzeichnis enthält `VERSION`, `SKILL.md`, `scripts/jobsuche.py`, das Python-Paket `scripts/ba_jobsuche/` und `references/`. Installiere das **ganze Verzeichnis**; die `SKILL.md` allein reicht nicht.
 
 ## Voraussetzungen und Vorgehen
 
 1. Ermittle anhand des Auftrags und der Dokumentation deiner Agentenumgebung den Installationsort und den Geltungsbereich: projektbezogen im gewünschten Projekt oder persönlich für mehrere Projekte. Nutze einen vorhandenen, geeigneten Installationsmechanismus des Agenten bevorzugt. Wenn der Auftrag den Bereich nicht festlegt, berücksichtige den Kontext und teile den gewählten Bereich mit; bei entscheidender Unklarheit frage nach.
 2. Der Agent benötigt Zugriff auf GitHub und Schreibrechte am Zielort. Für die Nutzung sind Python 3.10 oder neuer und Netzwerkzugriff auf die Jobsuche der Bundesagentur für Arbeit nötig. Prüfe die Version mit `python3 --version` beziehungsweise dem passenden Python-Aufruf der Umgebung. Zusätzliche Python-Pakete sind nicht nötig. Beachte die Berechtigungen und Sandbox-Regeln deiner Umgebung.
-3. Installiere `skills/ba-jobsuche` mit der agenteneigenen Routine aus dem genannten Repository. Falls kein geeigneter Mechanismus verfügbar ist, beziehe das Repository und kopiere das vollständige Verzeichnis in den dokumentierten Skill-Ordner des gewählten Bereichs. Erhalte die Verzeichnisstruktur. Ein vorhandenes Ziel nicht ungeprüft überschreiben: vorhandene Installation und Nutzerauftrag prüfen und einen Konflikt gegebenenfalls mit der Person klären.
+3. Ermittle das neueste stabile Release anhand der SemVer-Versionen der veröffentlichten GitHub-Releases. Installiere `skills/ba-jobsuche` aus dessen konkretem Tag mit der agenteneigenen Routine aus dem genannten Repository. Falls kein geeigneter Mechanismus verfügbar ist, beziehe das Repository und kopiere das vollständige Verzeichnis in den dokumentierten Skill-Ordner des gewählten Bereichs. Erhalte die Verzeichnisstruktur. Ein vorhandenes Ziel nicht ungeprüft überschreiben: vorhandene Installation und Nutzerauftrag prüfen und einen Konflikt gegebenenfalls mit der Person klären.
 4. Prüfe die Dateien und den Skriptaufruf wie unten beschrieben. Starte, falls die Umgebung es verlangt oder die Skill nicht erkennt, eine neue Agentensitzung und prüfe die Erkennung dort. Teile Installationsort, Geltungsbereich, durchgeführte Prüfungen und verbleibende Einschränkungen mit.
 
 ### Beispiel für das Kopieren
@@ -14,12 +14,12 @@ Diese Anleitung richtet sich an den Agenten, der die Skill im Auftrag einer Pers
 Dies ist ein Shell-Beispiel für einen **neuen** Zielpfad; ersetze `<skill-ordner>` durch den für Agent und Geltungsbereich dokumentierten Ordner. Nutze einen temporären Checkout und beachte bei bestehenden Dateien Schritt 3. Andere Plattformen können gleichwertige Werkzeuge verwenden.
 
 ```sh
-git clone https://github.com/kaiboesefeldt/ba-jobsuche.git /tmp/ba-jobsuche-install
+git clone --branch '<release-tag>' --depth 1 https://github.com/kaiboesefeldt/ba-jobsuche.git /tmp/ba-jobsuche-install
 mkdir -p '<skill-ordner>'
 cp -R /tmp/ba-jobsuche-install/skills/ba-jobsuche '<skill-ordner>/ba-jobsuche'
 ```
 
-Das Beispiel setzt voraus, dass weder `/tmp/ba-jobsuche-install` noch `<skill-ordner>/ba-jobsuche` existiert. Die Anführungszeichen entfernen oder den vollständigen konkreten Pfad darin einsetzen; ein wörtliches `~` innerhalb der Anführungszeichen wird von der Shell nicht expandiert. Für ein Update die vorhandene Installation und etwaige lokale Änderungen gesondert prüfen.
+Das Beispiel setzt voraus, dass weder `/tmp/ba-jobsuche-install` noch `<skill-ordner>/ba-jobsuche` existiert. Die Anführungszeichen entfernen oder den vollständigen konkreten Pfad darin einsetzen; ein wörtliches `~` innerhalb der Anführungszeichen wird von der Shell nicht expandiert. Für Updates gilt die [Update-Anleitung](../skills/ba-jobsuche/references/update.md); lokale Änderungen werden dabei überschrieben.
 
 ## Dokumentierte Orte für verbreitete Agenten
 
@@ -47,3 +47,7 @@ Die relativen Aufrufe in `SKILL.md` setzen das Skill-Verzeichnis als Arbeitsverz
 Typische Fehler: Bei fehlendem Python oder falscher Version einen geeigneten Interpreter bereitstellen. Bei `ModuleNotFoundError` prüfen, ob `scripts/ba_jobsuche/` neben `jobsuche.py` vollständig kopiert wurde. Wird die Skill nicht erkannt, Ort, Geltungsbereich, Dateinamen und neue Sitzung prüfen. Bei Netzwerk- oder Berechtigungsfehlern die jeweilige Umgebung prüfen und den Fehler melden. Ein erfolgreicher `--help`-Aufruf belegt weder die Erkennung durch den Agenten noch den Zugriff auf die API.
 
 Die Pfadangaben wurden anhand der Quellen geprüft; eine vollständige Installation und Nutzung mit jeder genannten Agentenumgebung ist dadurch nicht belegt. Die agentenübergreifende praktische Prüfung erfolgt gesondert.
+
+## Aktualisieren
+
+Ein Update erfolgt nur auf ausdrücklichen Auftrag. Der Agent befolgt die [Update-Anleitung](../skills/ba-jobsuche/references/update.md), vergleicht die installierte Version mit dem neuesten stabilen Release und ersetzt die Skill nur bei einer neueren Version. Bei vermuteten API-Fehlern prüft er Release-Hinweise und meldet einen möglichen Zusammenhang, aktualisiert aber nicht selbstständig.

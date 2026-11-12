@@ -44,3 +44,11 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s integration_tests -v
 ```
 
 Die zwei Tests senden zusammen höchstens sechs Anfragen: je eine Suche, einen allgemeinen Detailabruf und höchstens drei Detailabrufe für Homeoffice-Treffer. Sie prüfen aktuelle strukturierte Detailangaben, nicht die vertraglichen Bedingungen; fehlende oder widersprüchliche Angaben führen zum Fehlschlag. Leere Ergebnisse, Änderungen der externen Daten oder Dienstausfälle können den Test ebenfalls fehlschlagen lassen und sind gesondert zu untersuchen. Die Nutzungsbedingungen sind zu beachten.
+
+## Kompatibilität und Versionierung
+
+Die Skill-Version steht in `skills/ba-jobsuche/VERSION` und folgt ab 1.0.0 SemVer. Zum öffentlichen Vertrag gehören die hier dokumentierten CLI-Kommandos und Optionen, die Exit-Codes, die Fehlercodes sowie die versionierte JSON-Ausgabehülle. Die JSON-kodierten Mehrfachwerte in `query` bleiben Teil dieses Vertrags. Fehlermeldungen sind englischsprachig; ihr genauer Wortlaut ist nicht stabil. Felder innerhalb der externen API-Ergebnisse und die Verfügbarkeit der BA-Schnittstelle sind nicht garantiert.
+
+Die CLI liefert bei Erfolg Exit-Code 0, bei behandelten Fehlern 1. `invalid_input` bezeichnet ungültige CLI-Eingaben, `http_error` eine HTTP-Fehlerantwort, `network_error` einen Netzwerk- oder Timeoutfehler und `invalid_response` ungültiges JSON oder ein nicht interpretierbares Antwortformat. Ein Fehler bedeutet nicht automatisch, dass die API geändert wurde.
+
+Major-Versionen kennzeichnen inkompatible Änderungen des öffentlichen Vertrags, Minor-Versionen kompatible Erweiterungen und Patch-Versionen kompatible Korrekturen. `schema_version` bezeichnet unabhängig davon die Ausgabehülle.
