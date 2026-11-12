@@ -3,10 +3,17 @@
 import argparse
 import json
 from datetime import datetime, timezone
+from itertools import product
 from typing import Any, NoReturn
 
 from .api import ApiError, fetch_detail, fetch_search
-from .search import DEFAULT_MAX_PAGES, DEFAULT_PAGE_SIZE, SearchError, search
+from .search import (
+    DEFAULT_MAX_PAGES,
+    DEFAULT_PAGE_SIZE,
+    SearchError,
+    add_unique,
+    search,
+)
 
 
 class Parser(argparse.ArgumentParser):
@@ -26,19 +33,54 @@ def parse_location(value: str) -> dict[str, str | int]:
     return {"wo": location, "umkreis": int(radius)}
 
 
-def search_command(args: argparse.Namespace) -> dict[str, Any]:
-    if not args.was.strip() or (args.wo is not None and not args.wo.strip()):
+def display_values(values: list[str]) -> str:
+    return values[0] if len(values) == 1 else json.dumps(values, ensure_ascii=False)
+
+
+def prepare_search(
+    args: argparse.Namespace,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    locations = args.wo or []
+    if any(not value.strip() for value in [*args.was, *locations]):
         raise ValueError("Search text and location must not be empty")
-    query = {"was": args.was}
-    if args.wo:
-        query.update(parse_location(args.wo))
-    api_query = dict(query)
+    parsed_locations = [parse_location(value) for value in locations] or [{}]
+    output_query: dict[str, Any] = {"was": display_values(args.was)}
+    if len(locations) == 1:
+        output_query.update(parsed_locations[0])
+    elif locations:
+        output_query["wo"] = display_values(locations)
+    common = {}
     if args.homeoffice:
-        query["homeoffice"] = args.homeoffice
-        api_query["homeoffice"] = f"prozentual_{args.homeoffice[:-1]}"
+        output_query["homeoffice"] = args.homeoffice
+        common["homeoffice"] = f"prozentual_{args.homeoffice[:-1]}"
+    api_queries = [
+        {"was": term, **location, **common}
+        for term, location in product(args.was, parsed_locations)
+    ]
+    return output_query, api_queries
+
+
+def search_command(args: argparse.Namespace) -> dict[str, Any]:
+    output_query, api_queries = prepare_search(args)
+    results: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    pages = 0
+    totals: list[int] = []
+    reasons = {"exhausted": 0, "page_limit": 1, "unexpected_empty_page": 2}
+    reason = "exhausted"
+    for api_query in api_queries:
+        part = search(fetch_search, api_query, args.size, args.max_pages)
+        add_unique(part["results"], results, seen)
+        pages += part["pages_fetched"]
+        totals.extend(part["reported_totals"])
+        reason = max((reason, part["stop_reason"]), key=reasons.__getitem__)
     return {
-        "query": query,
-        **search(fetch_search, api_query, args.size, args.max_pages),
+        "query": output_query,
+        "results": results,
+        "pages_fetched": pages,
+        "reported_totals": totals,
+        "stop_reason": reason,
+        "complete": reason == "exhausted",
     }
 
 
@@ -63,9 +105,15 @@ def main(argv: list[str] | None = None) -> int:
     parser = Parser(description="Search BA Jobsuche")
     sub = parser.add_subparsers(dest="command", required=True)
     find = sub.add_parser("search", help="Search job offers")
-    find.add_argument("--was", required=True, help="Search terms (required)")
+    find.add_argument(
+        "--was",
+        required=True,
+        action="append",
+        help="Search terms (required; repeatable)",
+    )
     find.add_argument(
         "--wo",
+        action="append",
         help="Location or location:radius in km (0-200); omit for no location filter",
     )
     find.add_argument(

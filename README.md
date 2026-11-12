@@ -12,6 +12,6 @@ Zur Installation kannst du deinem Agenten sagen:
 
 Die [Installationsanleitung für Agenten](docs/installation.md) beschreibt das Vorgehen und die Voraussetzungen.
 
-Die [Skill](skills/ba-jobsuche/SKILL.md) beschreibt den Rechercheablauf; [Nutzung und Schnittstelle](docs/nutzung.md) erläutern Ausgabe, Seitennavigation, Tests und Grenzen. Die API ist inoffiziell dokumentiert und kann sich ändern. Nutzende sind für die Einhaltung der Bedingungen ihrer konkreten Nutzung verantwortlich.
+Mehrere `--was`- und `--wo`-Angaben durchsuchen alle Kombinationen. Die [Skill](skills/ba-jobsuche/SKILL.md) beschreibt den Rechercheablauf; [Nutzung und Schnittstelle](docs/nutzung.md) erläutern Ausgabe, Seitennavigation, Tests und Grenzen. Die API ist inoffiziell dokumentiert und kann sich ändern. Nutzende sind für die Einhaltung der Bedingungen ihrer konkreten Nutzung verantwortlich.
 
 Projektbeiträge stehen unter der [Apache License 2.0](LICENSE); für Dienst und Inhalte können gesonderte Bedingungen gelten.

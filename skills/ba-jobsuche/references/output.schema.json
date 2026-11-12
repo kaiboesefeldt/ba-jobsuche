@@ -30,11 +30,11 @@
           "properties": {
             "was": {
               "type": "string",
-              "description": "Suchbegriff."
+              "description": "Suchbegriff; bei mehreren Angaben ein JSON-kodiertes Array als Zeichenkette."
             },
             "wo": {
               "type": "string",
-              "description": "Optionaler Suchort."
+              "description": "Optionaler Suchort; bei mehreren Angaben ein JSON-kodiertes Array der Originalangaben als Zeichenkette."
             },
             "arbeitszeit": {
               "type": "string",
@@ -80,7 +80,7 @@
         "pages_fetched": {
           "type": "integer",
           "minimum": 1,
-          "description": "Anzahl der erfolgreich abgerufenen und verarbeiteten Suchseiten."
+          "description": "Summe der erfolgreich verarbeiteten Suchseiten aller Einzelsuchen."
         },
         "reported_totals": {
           "type": "array",
@@ -88,7 +88,7 @@
             "type": "integer",
             "minimum": 0
           },
-          "description": "Von der Schnittstelle pro abgerufener Seite gemeldete Gesamtzahlen; diese können sich ändern."
+          "description": "Pro abgerufener Seite in Ausführungsreihenfolge gemeldete Trefferzahlen, keine eindeutige Gesamttrefferzahl."
         },
         "stop_reason": {
           "enum": [
@@ -96,11 +96,11 @@
             "page_limit",
             "unexpected_empty_page"
           ],
-          "description": "Abbruchgrund: exhausted, wenn anhand der Antwort keine weitere Seite erkannt wurde; page_limit bei erreichter Seitengrenze; unexpected_empty_page bei vorzeitig leerer Seite."
+          "description": "Zusammengefasster Abbruchgrund; unexpected_empty_page hat Vorrang vor page_limit und exhausted."
         },
         "complete": {
           "type": "boolean",
-          "description": "Nur bei exhausted wahr; garantiert keine vollständige oder atomare Momentaufnahme."
+          "description": "Nur wahr, wenn alle Einzelsuchen exhausted melden; garantiert keine vollständige Momentaufnahme."
         }
       },
       "required": [
