@@ -18,6 +18,8 @@ python3 scripts/jobsuche.py detail 'Referenznummer'
 
 `--wo` akzeptiert einen Ort oder `Ort:Kilometer` mit ganzzahligem Umkreis von 0 bis 200 km; ohne `--wo` wird kein Ort vorgegeben. Ungültige Angaben führen zu einem Eingabefehler. Die API-Grenzen sind nicht verbindlich dokumentiert.
 
+Wiederhole `--was` und `--wo` für alle Kombinationen; ohne `--wo` wird je Suchbegriff ohne Ortsfilter gesucht. Die Anzahl der Einzelsuchen ist das Produkt der Angaben, jede benötigt bis zu `--max-pages` Anfragen. Seitengrenzen gelten pro Einzelsuche; Ergebnisse werden über alle Seiten und Einzelsuchen anhand der Referenznummer dedupliziert.
+
 `--homeoffice` akzeptiert optional `0%`, `25%`, `50%` oder `100%`; ohne Wert gilt `100%`.
 
 Weitere Parameter beschreibt `--help` beim jeweiligen Unterbefehl.
@@ -70,6 +72,8 @@ Das [JSON-Schema](references/output.schema.json) beschreibt die stabile Ausgabeh
 ## Fehlerbehandlung
 
 Bei Fehlern hat `ok` den Wert `false` und der Exit-Code ungleich null; es wird kein Teilergebnis ausgegeben.
+
+`pages_fetched` summiert alle Seiten, `reported_totals` enthält die API-Zahlen je Seite in Ausführungsreihenfolge und ist keine eindeutige Gesamttrefferzahl. `complete` ist nur wahr, wenn jede Suche erschöpft ist; bei mehreren Abbruchgründen hat `unexpected_empty_page` Vorrang vor `page_limit` und `exhausted`. Mehrfachwerte stehen als JSON-kodierte Arrays innerhalb der Zeichenketten `query.was` und `query.wo`; bei einem Ort bleibt dessen Umkreis separat.
 
 Eine erreichte Seitengrenze, Fehler oder widersprüchliche Daten bedeuten, dass Ergebnisse fehlen können. Auch sonst ist keine vollständige Momentaufnahme garantiert.
 

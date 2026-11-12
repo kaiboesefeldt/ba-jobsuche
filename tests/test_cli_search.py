@@ -180,6 +180,159 @@ class CliTests(unittest.TestCase):
                 )
                 fetch.assert_not_called()
 
+    def test_multiple_terms_and_locations_are_combined_and_deduplicated(self):
+        out = io.StringIO()
+
+        def response(params):
+            return {
+                "maxErgebnisse": 2,
+                "ergebnisliste": [
+                    {"referenznummer": "shared"},
+                    {"referenznummer": params["was"] + params["wo"]},
+                ],
+            }
+
+        with (
+            patch("ba_jobsuche.cli.fetch_search", side_effect=response) as fetch,
+            contextlib.redirect_stdout(out),
+        ):
+            status = main(
+                [
+                    "search",
+                    "--was",
+                    "Java",
+                    "--was",
+                    "Python",
+                    "--wo",
+                    "Berlin:50",
+                    "--wo",
+                    "Bonn",
+                    "--homeoffice",
+                    "50%",
+                ]
+            )
+        data = json.loads(out.getvalue())
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            [(c.args[0]["was"], c.args[0]["wo"]) for c in fetch.call_args_list],
+            [
+                ("Java", "Berlin"),
+                ("Java", "Bonn"),
+                ("Python", "Berlin"),
+                ("Python", "Bonn"),
+            ],
+        )
+        self.assertEqual(len(data["results"]), 5)
+        self.assertEqual(data["pages_fetched"], 4)
+        self.assertEqual(data["reported_totals"], [2, 2, 2, 2])
+        self.assertEqual(json.loads(data["query"]["was"]), ["Java", "Python"])
+        self.assertEqual(json.loads(data["query"]["wo"]), ["Berlin:50", "Bonn"])
+        self.assertTrue(
+            all(
+                c.args[0]["homeoffice"] == "prozentual_50" for c in fetch.call_args_list
+            )
+        )
+
+    def test_multiple_terms_without_location_and_incomplete_page(self):
+        out = io.StringIO()
+
+        def response(params):
+            return {
+                "maxErgebnisse": 3,
+                "ergebnisliste": [{"referenznummer": params["was"]}],
+            }
+
+        with (
+            patch("ba_jobsuche.cli.fetch_search", side_effect=response) as fetch,
+            contextlib.redirect_stdout(out),
+        ):
+            status = main(
+                [
+                    "search",
+                    "--was",
+                    "Java",
+                    "--was",
+                    "Python",
+                    "--size",
+                    "1",
+                    "--max-pages",
+                    "1",
+                ]
+            )
+        data = json.loads(out.getvalue())
+        self.assertEqual(status, 0)
+        self.assertEqual(data["stop_reason"], "page_limit")
+        self.assertFalse(data["complete"])
+        self.assertEqual(data["pages_fetched"], 2)
+        self.assertTrue(all("wo" not in c.args[0] for c in fetch.call_args_list))
+
+    def test_later_error_never_returns_partial_success(self):
+        from ba_jobsuche.api import ApiError
+
+        out = io.StringIO()
+        with (
+            patch(
+                "ba_jobsuche.cli.fetch_search",
+                side_effect=[{"maxErgebnisse": 0}, ApiError("network_error", "failed")],
+            ),
+            contextlib.redirect_stdout(out),
+        ):
+            status = main(["search", "--was", "Java", "--was", "Python"])
+        self.assertEqual(status, 1)
+        self.assertNotIn("results", json.loads(out.getvalue()))
+
+    def test_invalid_later_location_is_rejected_before_requests(self):
+        with (
+            patch("ba_jobsuche.cli.fetch_search") as fetch,
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            self.assertEqual(
+                main(["search", "--was", "Java", "--wo", "Berlin", "--wo", "Bad:999"]),
+                1,
+            )
+        fetch.assert_not_called()
+
+    def test_incomplete_reasons_take_precedence(self):
+        out = io.StringIO()
+        responses = [
+            {"maxErgebnisse": 2, "ergebnisliste": [{"referenznummer": "a"}]},
+            {"maxErgebnisse": 2, "ergebnisliste": []},
+            {"maxErgebnisse": 0},
+        ]
+        with (
+            patch("ba_jobsuche.cli.fetch_search", side_effect=responses),
+            contextlib.redirect_stdout(out),
+        ):
+            self.assertEqual(
+                main(
+                    [
+                        "search",
+                        "--was",
+                        "a",
+                        "--was",
+                        "b",
+                        "--was",
+                        "c",
+                        "--size",
+                        "1",
+                        "--max-pages",
+                        "1",
+                    ]
+                ),
+                0,
+            )
+        data = json.loads(out.getvalue())
+        self.assertEqual(data["stop_reason"], "unexpected_empty_page")
+        self.assertFalse(data["complete"])
+
+    def test_invalid_later_term_is_rejected_before_requests(self):
+        with (
+            patch("ba_jobsuche.cli.fetch_search") as fetch,
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            self.assertEqual(main(["search", "--was", "Java", "--was", " "]), 1)
+        fetch.assert_not_called()
+
     def test_detail_success(self):
         out = io.StringIO()
         with (
