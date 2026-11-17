@@ -7,12 +7,15 @@ python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Softwareentwickler'
 python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Java' --was 'Python' --wo 'Rostock:50' --wo 'Berlin'
 python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Python' --size 50 --max-pages 20
 python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Python' --homeoffice 50%
+python3 skills/ba-jobsuche/scripts/jobsuche.py search --was 'Python' --veroeffentlichtseit 7
 python3 skills/ba-jobsuche/scripts/jobsuche.py detail 'REFERENZNUMMER'
 ```
 
 `--wo 'Rostock:50'` übergibt `wo=Rostock` und `umkreis=50` (Kilometer); `query` enthält beide Parameter. Akzeptiert werden ein nicht leerer Ort und eine ganze Zahl aus ASCII-Ziffern von 0 bis 200, ohne Leerzeichen um die Zahl. Ungültige Angaben erzeugen einen Eingabefehler ohne Anfrage. Ohne Doppelpunkt wird der Ort unverändert übergeben; ohne `--wo` wird kein Ort vorgegeben. Die [Community-API-Dokumentation](https://github.com/bundesAPI/jobsuche-api) beschreibt `umkreis` in Kilometern um `wo`; die [BA-Hilfe zur Stellensuche](https://jobboerse.arbeitsagentur.de/vamJB/hilfe/de/AS/betreut/1080.html) nennt für ihre Oberfläche bis zu 200 km. Der Höchstwert 200 ist eine anhand dieser Oberfläche gewählte Clientgrenze; eine maximale Entfernung für den API-Endpunkt ist damit nicht belegt.
 
 Der optionale Schalter `--homeoffice` akzeptiert `0%`, `25%`, `50%` oder `100%`; ohne Wert gilt `100%`. Andere Werte sind ein Eingabefehler. Die Werte werden auf `homeoffice=prozentual_0`, `prozentual_25`, `prozentual_50` beziehungsweise `prozentual_100` abgebildet. Ohne Schalter wird kein Homeoffice-Filter gesetzt; ohne `--wo` wird kein Ort vorgegeben. Live-Vergleiche sprechen für einen Mindestanteil, die genaue Semantik und Vollständigkeit sind jedoch nicht verbindlich dokumentiert. Angaben und Bedingungen in den Stellendetails prüfen; fehlende Angaben bleiben unklar.
+
+`--veroeffentlichtseit 7` übergibt den API-Parameter `veroeffentlichtseit=7` und zeigt den ganzzahligen Wert in `query`. Zulässig sind 0 bis 100 Tage; ohne Option wird kein Aktualitätsfilter gesetzt. Die [Community-Dokumentation](https://github.com/bundesAPI/jobsuche-api/blob/main/openapi.yaml) nennt diesen Bereich und beschreibt das Alter seit Veröffentlichung. Ein begrenzter Live-Vergleich am 17.11.2026 für „Softwareentwickler“ ergab bei 0 und 7 Tagen geringere Trefferzahlen als ohne Filter; bei 30, 100 und 101 Tagen waren die Zahlen gleich. Das belegt weder Grenzvalidierung noch genaue Bedeutung oder Vollständigkeit. Datumsangaben und Aktualität einzelner Angebote prüfen.
 
 Wiederholte `--was`- und `--wo`-Optionen bilden alle Kombinationen in Eingabereihenfolge (zuerst Suchbegriff, dann Ort); ohne Ort wird je Suchbegriff ortsunabhängig gesucht. Drei Orte und vier Suchbegriffe ergeben zwölf Einzelsuchen. Pro Einzelsuche werden bis zu `--max-pages` HTTP-Anfragen benötigt; insgesamt also höchstens Produkt der Angaben mal Seitengrenze. Alle Filter gelten für jede Einzelsuche.
 

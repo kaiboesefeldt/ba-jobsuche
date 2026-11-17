@@ -37,6 +37,14 @@ def display_values(values: list[str]) -> str:
     return values[0] if len(values) == 1 else json.dumps(values, ensure_ascii=False)
 
 
+def publication_filter(age: int | None) -> dict[str, int]:
+    if age is None:
+        return {}
+    if not 0 <= age <= 100:
+        raise ValueError("Publication age must be between 0 and 100 days")
+    return {"veroeffentlichtseit": age}
+
+
 def prepare_search(
     args: argparse.Namespace,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
@@ -49,7 +57,8 @@ def prepare_search(
         output_query.update(parsed_locations[0])
     elif locations:
         output_query["wo"] = display_values(locations)
-    common = {}
+    common = publication_filter(args.veroeffentlichtseit)
+    output_query.update(common)
     if args.homeoffice:
         output_query["homeoffice"] = args.homeoffice
         common["homeoffice"] = f"prozentual_{args.homeoffice[:-1]}"
@@ -128,6 +137,9 @@ def main(argv: list[str] | None = None) -> int:
         type=int,
         default=DEFAULT_PAGE_SIZE,
         help="Results per page, 1-100 (default: 100)",
+    )
+    find.add_argument(
+        "--veroeffentlichtseit", type=int, help="Publication age in days, 0-100"
     )
     find.add_argument(
         "--max-pages",

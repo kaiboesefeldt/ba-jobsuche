@@ -42,6 +42,12 @@
               "maximum": 200,
               "description": "Optionaler Suchradius in Kilometern um den Suchort."
             },
+            "veroeffentlichtseit": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Optionales Veröffentlichungsalter in Tagen."
+            },
             "homeoffice": {
               "type": "string",
               "enum": [

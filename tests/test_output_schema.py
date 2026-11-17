@@ -43,7 +43,16 @@ class OutputSchemaTests(unittest.TestCase):
                 {"maxErgebnisse": 0},
             ),
             self.output(
-                ["search", "--was", "x", "--wo", "Rostock:50", "--homeoffice"],
+                [
+                    "search",
+                    "--was",
+                    "x",
+                    "--wo",
+                    "Rostock:50",
+                    "--homeoffice",
+                    "--veroeffentlichtseit",
+                    "7",
+                ],
                 {"maxErgebnisse": 0},
             ),
             self.output(
