@@ -16,6 +16,54 @@ from ba_jobsuche.cli import main
 
 
 class CliTests(unittest.TestCase):
+    def test_publication_age_is_reported_and_sent_for_all_queries(self):
+        for age in (0, 7, 100):
+            with (
+                self.subTest(age=age),
+                patch(
+                    "ba_jobsuche.cli.fetch_search", return_value={"maxErgebnisse": 0}
+                ) as fetch,
+                contextlib.redirect_stdout(io.StringIO()) as out,
+            ):
+                status = main(
+                    [
+                        "search",
+                        "--was",
+                        "Java",
+                        "--was",
+                        "Python",
+                        "--veroeffentlichtseit",
+                        str(age),
+                    ]
+                )
+            self.assertEqual(status, 0)
+            self.assertEqual(
+                json.loads(out.getvalue())["query"]["veroeffentlichtseit"], age
+            )
+            self.assertEqual(len(fetch.call_args_list), 2)
+            self.assertTrue(
+                all(
+                    c.args[0]["veroeffentlichtseit"] == age
+                    for c in fetch.call_args_list
+                )
+            )
+
+    def test_invalid_publication_age_never_sends_request(self):
+        for value in ("-1", "101", "1.5", "abc", ""):
+            with (
+                self.subTest(value=value),
+                patch("ba_jobsuche.cli.fetch_search") as fetch,
+                contextlib.redirect_stdout(io.StringIO()) as out,
+            ):
+                self.assertEqual(
+                    main(["search", "--was", "Python", "--veroeffentlichtseit", value]),
+                    1,
+                )
+                self.assertEqual(
+                    json.loads(out.getvalue())["error"]["code"], "invalid_input"
+                )
+                fetch.assert_not_called()
+
     def test_help_explains_search_and_detail_inputs(self):
         for args, expected in (
             (
