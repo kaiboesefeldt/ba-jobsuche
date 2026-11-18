@@ -22,7 +22,9 @@ Wiederhole `--was` und `--wo` für alle Kombinationen; ohne `--wo` wird je Suchb
 
 `--homeoffice` akzeptiert optional `0%`, `25%`, `50%` oder `100%`; ohne Wert gilt `100%`.
 
-`--veroeffentlichtseit` begrenzt auf Wunsch das Veröffentlichungsalter auf eine ganze Zahl von 0 bis 100 Tagen, zum Beispiel `--veroeffentlichtseit 7`. Ohne Option wird kein Aktualitätsfilter gesetzt. Die genaue API-Semantik ist nicht verbindlich dokumentiert; prüfe die Datumsangaben der Treffer und berücksichtige mögliche Lücken.
+`--veroeffentlichtseit` begrenzt auf Wunsch das Veröffentlichungsalter auf eine ganze Zahl von 0 bis 100 Tagen, zum Beispiel `--veroeffentlichtseit 7`. Die API-Semantik ist nicht garantiert; passende Treffer können fehlen.
+
+Suchergebnisse sind grundsätzlich nach Erstveröffentlichung absteigend sortiert, auch ohne Zeitfilter und über kombinierte Suchen hinweg. Treffer mit fehlendem oder ungültigem Erstveröffentlichungsdatum bleiben erhalten und stehen zuletzt; ihre Anzahl wird auf stderr gemeldet.
 
 Weitere Parameter beschreibt `--help` beim jeweiligen Unterbefehl.
 

@@ -43,7 +43,7 @@ class CliTests(unittest.TestCase):
             self.assertEqual(len(fetch.call_args_list), 2)
             self.assertTrue(
                 all(
-                    c.args[0]["veroeffentlichtseit"] == age
+                    c.args[0].get("veroeffentlichtseit") == (age if age <= 28 else None)
                     for c in fetch.call_args_list
                 )
             )
@@ -143,7 +143,8 @@ class CliTests(unittest.TestCase):
                     )
                 self.assertEqual(json.loads(out.getvalue())["query"], reported)
                 self.assertEqual(
-                    fetch.call_args.args[0], {**expected, "page": 1, "size": 100}
+                    fetch.call_args.args[0],
+                    {**expected, "sort": "veroeffdatum", "page": 1, "size": 100},
                 )
 
     def test_invalid_homeoffice_value_rejected_without_request(self):
@@ -170,7 +171,13 @@ class CliTests(unittest.TestCase):
             self.assertEqual(main(["search", "--was", "Python", "--wo", "Berlin"]), 0)
         self.assertEqual(
             fetch.call_args.args[0],
-            {"was": "Python", "wo": "Berlin", "page": 1, "size": 100},
+            {
+                "was": "Python",
+                "wo": "Berlin",
+                "sort": "veroeffdatum",
+                "page": 1,
+                "size": 100,
+            },
         )
         self.assertEqual(
             json.loads(out.getvalue())["query"], {"was": "Python", "wo": "Berlin"}
@@ -200,7 +207,8 @@ class CliTests(unittest.TestCase):
                 expected = {"was": "Python", "wo": location, "umkreis": radius}
                 self.assertEqual(json.loads(out.getvalue())["query"], expected)
                 self.assertEqual(
-                    fetch.call_args.args[0], {**expected, "page": 1, "size": 100}
+                    fetch.call_args.args[0],
+                    {**expected, "sort": "veroeffdatum", "page": 1, "size": 100},
                 )
 
     def test_invalid_radius_never_sends_request(self):
