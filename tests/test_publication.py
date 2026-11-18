@@ -35,6 +35,39 @@ class PublicationTests(unittest.TestCase):
         )
         self.assertEqual(unknown, 2)
 
+    def test_cli_sorts_combined_search_without_publication_filter(self):
+        def fetch(params):
+            dates = {"a": "2026-01-01", "b": "2026-02-01"}
+            return {
+                "maxErgebnisse": 1,
+                "ergebnisliste": [
+                    {
+                        "referenznummer": params["was"],
+                        "datumErsteVeroeffentlichung": dates[params["was"]],
+                    }
+                ],
+            }
+
+        with (
+            patch("ba_jobsuche.cli.fetch_search", side_effect=fetch) as api,
+            contextlib.redirect_stdout(io.StringIO()) as out,
+        ):
+            self.assertEqual(main(["search", "--was", "a", "--was", "b"]), 0)
+        self.assertEqual(
+            [
+                entry["referenznummer"]
+                for entry in json.loads(out.getvalue())["results"]
+            ],
+            ["b", "a"],
+        )
+        self.assertTrue(
+            all(
+                call.args[0]["sort"] == "veroeffdatum"
+                and "veroeffentlichtseit" not in call.args[0]
+                for call in api.call_args_list
+            )
+        )
+
     def test_api_prefilter_and_output(self):
         for age, expected in [
             (0, 0),
