@@ -1,6 +1,7 @@
 """Collect paginated search results without assigning ratings."""
 
 from collections.abc import Callable
+from datetime import date, datetime, timedelta
 from typing import Any
 
 DEFAULT_MAX_PAGES = 10
@@ -87,3 +88,30 @@ def search(
         "stop_reason": reason,
         "complete": reason == "exhausted",
     }
+
+
+def publication_date(entry: dict[str, Any]) -> date | None:
+    value = entry.get("datumErsteVeroeffentlichung")
+    if not isinstance(value, str):
+        return None
+    try:
+        return (
+            date.fromisoformat(value)
+            if len(value) == 10
+            else datetime.fromisoformat(value.replace("Z", "+00:00")).date()
+        )
+    except ValueError:
+        return None
+
+
+def order_publications(
+    entries: list[dict[str, Any]], age: int | None, today: date
+) -> tuple[list[dict[str, Any]], int]:
+    dated = [(entry, publication_date(entry)) for entry in entries]
+    unknown = sum(day is None for _, day in dated)
+    cutoff = today - timedelta(days=age) if age is not None else date.min
+    selected = [(entry, day) for entry, day in dated if day is None or day >= cutoff]
+    selected.sort(
+        key=lambda item: (item[1] is not None, item[1] or date.min), reverse=True
+    )
+    return [entry for entry, _ in selected], unknown

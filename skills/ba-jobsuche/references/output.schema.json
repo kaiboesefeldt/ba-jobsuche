@@ -77,7 +77,7 @@
               }
             }
           },
-          "description": "Suchtreffer mit unveränderten Feldern der Schnittstelle; anhand der Referenznummer dedupliziert."
+          "description": "Suchtreffer mit unveränderten Feldern der Schnittstelle; anhand der Referenznummer dedupliziert, absteigend nach Erstveröffentlichung sortiert; unklare Daten zuletzt."
         },
         "pages_fetched": {
           "type": "integer",

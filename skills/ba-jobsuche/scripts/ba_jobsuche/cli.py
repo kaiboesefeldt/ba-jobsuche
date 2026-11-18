@@ -2,9 +2,11 @@
 
 import argparse
 import json
-from datetime import datetime, timezone
+import sys
+from datetime import date, datetime, timedelta, timezone
 from itertools import product
 from typing import Any, NoReturn
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from .api import ApiError, fetch_detail, fetch_search
 from .search import (
@@ -12,8 +14,21 @@ from .search import (
     DEFAULT_PAGE_SIZE,
     SearchError,
     add_unique,
+    order_publications,
     search,
 )
+
+
+def berlin_date(instant: datetime) -> date:
+    try:
+        return instant.astimezone(ZoneInfo("Europe/Berlin")).date()
+    except (ZoneInfoNotFoundError, KeyError):
+        utc = instant.astimezone(timezone.utc)
+        march = datetime(utc.year, 3, 31, 1, tzinfo=timezone.utc)
+        october = datetime(utc.year, 10, 31, 1, tzinfo=timezone.utc)
+        start = march - timedelta(days=(march.weekday() + 1) % 7)
+        end = october - timedelta(days=(october.weekday() + 1) % 7)
+        return (utc + timedelta(hours=2 if start <= utc < end else 1)).date()
 
 
 class Parser(argparse.ArgumentParser):
@@ -42,7 +57,19 @@ def publication_filter(age: int | None) -> dict[str, int]:
         return {}
     if not 0 <= age <= 100:
         raise ValueError("Publication age must be between 0 and 100 days")
-    return {"veroeffentlichtseit": age}
+    return (
+        {
+            "veroeffentlichtseit": next(
+                stage for stage in (0, 1, 7, 14, 28) if stage >= age
+            )
+        }
+        if age <= 28
+        else {}
+    )
+
+
+def display_publication_filter(age: int | None) -> dict[str, int]:
+    return {} if age is None else {"veroeffentlichtseit": age}
 
 
 def prepare_search(
@@ -58,7 +85,8 @@ def prepare_search(
     elif locations:
         output_query["wo"] = display_values(locations)
     common = publication_filter(args.veroeffentlichtseit)
-    output_query.update(common)
+    output_query.update(display_publication_filter(args.veroeffentlichtseit))
+    common["sort"] = "veroeffdatum"
     if args.homeoffice:
         output_query["homeoffice"] = args.homeoffice
         common["homeoffice"] = f"prozentual_{args.homeoffice[:-1]}"
@@ -71,6 +99,7 @@ def prepare_search(
 
 def search_command(args: argparse.Namespace) -> dict[str, Any]:
     output_query, api_queries = prepare_search(args)
+    today = berlin_date(datetime.now(timezone.utc))
     results: list[dict[str, Any]] = []
     seen: set[str] = set()
     pages = 0
@@ -83,7 +112,9 @@ def search_command(args: argparse.Namespace) -> dict[str, Any]:
         pages += part["pages_fetched"]
         totals.extend(part["reported_totals"])
         reason = max((reason, part["stop_reason"]), key=reasons.__getitem__)
+    results, unknown = order_publications(results, args.veroeffentlichtseit, today)
     return {
+        "unknown_publication_dates": unknown,
         "query": output_query,
         "results": results,
         "pages_fetched": pages,
@@ -158,7 +189,14 @@ def main(argv: list[str] | None = None) -> int:
             "source": "https://www.arbeitsagentur.de/jobsuche/",
             "retrieved_at": now,
         }
-        data = {**base, **dispatch(args)}
+        result = dispatch(args)
+        unknown = result.pop("unknown_publication_dates", 0)
+        if unknown:
+            print(
+                f"Warning: {unknown} results have an unknown first publication date",
+                file=sys.stderr,
+            )
+        data = {**base, **result}
         status = 0
     except (ValueError, SearchError, ApiError) as exc:
         code = (
