@@ -3,10 +3,9 @@
 import argparse
 import json
 import sys
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timezone
 from itertools import product
 from typing import Any, NoReturn
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from .api import ApiError, fetch_detail, fetch_search
 from .search import (
@@ -17,18 +16,6 @@ from .search import (
     order_publications,
     search,
 )
-
-
-def berlin_date(instant: datetime) -> date:
-    try:
-        return instant.astimezone(ZoneInfo("Europe/Berlin")).date()
-    except (ZoneInfoNotFoundError, KeyError):
-        utc = instant.astimezone(timezone.utc)
-        march = datetime(utc.year, 3, 31, 1, tzinfo=timezone.utc)
-        october = datetime(utc.year, 10, 31, 1, tzinfo=timezone.utc)
-        start = march - timedelta(days=(march.weekday() + 1) % 7)
-        end = october - timedelta(days=(october.weekday() + 1) % 7)
-        return (utc + timedelta(hours=2 if start <= utc < end else 1)).date()
 
 
 class Parser(argparse.ArgumentParser):
@@ -99,7 +86,7 @@ def prepare_search(
 
 def search_command(args: argparse.Namespace) -> dict[str, Any]:
     output_query, api_queries = prepare_search(args)
-    today = berlin_date(datetime.now(timezone.utc))
+    today = date.today()
     results: list[dict[str, Any]] = []
     seen: set[str] = set()
     pages = 0

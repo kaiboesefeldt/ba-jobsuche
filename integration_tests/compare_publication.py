@@ -2,9 +2,8 @@
 
 import json
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import date, timedelta
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 sys.path.insert(
     0, str(Path(__file__).resolve().parents[1] / "skills/ba-jobsuche/scripts")
@@ -21,7 +20,7 @@ def main():
         "umkreis": 50,
         "sort": "veroeffdatum",
     }
-    today = datetime.now(timezone.utc).astimezone(ZoneInfo("Europe/Berlin")).date()
+    today = date.today()
     raw = search(fetch_search, base, 100, 3)
     filtered = search(fetch_search, {**base, "veroeffentlichtseit": 7}, 100, 3)
     cutoff = today - timedelta(days=7)

@@ -15,7 +15,7 @@ python3 skills/ba-jobsuche/scripts/jobsuche.py detail 'REFERENZNUMMER'
 
 Der optionale Schalter `--homeoffice` akzeptiert `0%`, `25%`, `50%` oder `100%`; ohne Wert gilt `100%`. Andere Werte sind ein Eingabefehler. Die Werte werden auf `homeoffice=prozentual_0`, `prozentual_25`, `prozentual_50` beziehungsweise `prozentual_100` abgebildet. Ohne Schalter wird kein Homeoffice-Filter gesetzt; ohne `--wo` wird kein Ort vorgegeben. Live-Vergleiche sprechen für einen Mindestanteil, die genaue Semantik und Vollständigkeit sind jedoch nicht verbindlich dokumentiert. Angaben und Bedingungen in den Stellendetails prüfen; fehlende Angaben bleiben unklar.
 
-`--veroeffentlichtseit` akzeptiert 0 bis 100 Tage und zeigt den gewünschten Wert in `query`. Maßgeblich ist `datumErsteVeroeffentlichung`: Das Kalenderdatum in Europe/Berlin bei Suchbeginn minus die Tageszahl ist einschließlich Grenztag die Untergrenze. Fehlende oder ungültige Daten bleiben erhalten und werden in einer Warnung auf stderr gezählt. Der aktuelle Veröffentlichungszeitraum wird nicht als Ersatz verwendet. Ohne Filter bleiben alle Treffer erhalten. Alle abgerufenen und deduplizierten Treffer werden global nach Erstveröffentlichung absteigend sortiert; unbekannte Daten stehen zuletzt, Gleichstände behalten ihre Reihenfolge.
+`--veroeffentlichtseit` akzeptiert 0 bis 100 Tage und zeigt den gewünschten Wert in `query`. Maßgeblich ist `datumErsteVeroeffentlichung`: Das lokale Kalenderdatum des ausführenden Systems bei Suchbeginn minus die Tageszahl ist einschließlich Grenztag die Untergrenze. Fehlende oder ungültige Daten bleiben erhalten und werden in einer Warnung auf stderr gezählt. Der aktuelle Veröffentlichungszeitraum wird nicht als Ersatz verwendet. Ohne Filter bleiben alle Treffer erhalten. Alle abgerufenen und deduplizierten Treffer werden global nach Erstveröffentlichung absteigend sortiert; unbekannte Daten stehen zuletzt, Gleichstände behalten ihre Reihenfolge.
 
 Die API erhält `sort=veroeffdatum` und bei Zeiträumen bis 28 Tagen die nächstgrößere empirisch beobachtete Filterstufe aus 0, 1, 7, 14 und 28; darüber keinen API-Zeitfilter. Ein begrenzter Vergleich vom 18.11.2026 stützt diese Stufen und die Erstveröffentlichung, garantiert aber weder API-Semantik noch Vollständigkeit: Insbesondere kann die Vorauswahl bei abweichendem Verhalten passende oder unklar datierte Treffer ausschließen. Die Sortierung ist nicht verbindlich dokumentiert und begründet keinen vorzeitigen Seitenabbruch. Die Ergebnisse können sich während der Seitennavigation ändern.
 
@@ -41,8 +41,6 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/coverage run -m unittest discover -s tests -
 ```
 
 Das [JSON-Schema der Ausgabe](../skills/ba-jobsuche/references/output.schema.json) beschreibt die stabile Ausgabehülle; bei Änderungen an der CLI-Ausgabe Schema, Beispiele und Schema-Tests gemeinsam aktualisieren. Die Schema-Tests validieren tatsächliche CLI-Ausgaben und ungültige Varianten mit der Entwicklungsabhängigkeit `jsonschema`; zur Laufzeit ist sie nicht erforderlich.
-
-Wenn keine IANA-Zeitzonendaten verfügbar sind, berechnet die CLI das Berliner Datum anhand der seit 1996 geltenden europäischen Sommerzeitregel. Änderungen dieser Regel erfordern eine Anpassung oder aktuelle IANA-Daten.
 
 Die regulären Tests benötigen kein Netzwerk. Die separat auszuführenden Integrationstests greifen auf den BA-Dienst zu:
 

@@ -88,16 +88,14 @@ class PublicationTests(unittest.TestCase):
                 "ergebnisliste": pages[(params["was"], params["page"])],
             }
 
-        class Clock:
-            @staticmethod
-            def now(zone):
-                from datetime import datetime
-
-                return datetime(2026, 11, 18, 0, 30, tzinfo=zone)
+        class LocalDate(date):
+            @classmethod
+            def today(cls):
+                return cls(2026, 11, 19)
 
         with (
             patch("ba_jobsuche.cli.fetch_search", side_effect=fetch),
-            patch("ba_jobsuche.cli.datetime", Clock),
+            patch("ba_jobsuche.cli.date", LocalDate),
             contextlib.redirect_stdout(io.StringIO()) as out,
             contextlib.redirect_stderr(io.StringIO()) as err,
         ):
@@ -120,27 +118,11 @@ class PublicationTests(unittest.TestCase):
         result = json.loads(out.getvalue())
         self.assertEqual(
             [entry["referenznummer"] for entry in result["results"]],
-            ["new", "older", "unknown"],
+            ["new", "unknown"],
         )
         self.assertEqual(result["pages_fetched"], 4)
         self.assertIn("1 results", err.getvalue())
         self.assertTrue(result["complete"])
-
-    def test_berlin_date_without_timezone_database(self):
-        from datetime import datetime, timezone
-
-        from ba_jobsuche.cli import berlin_date
-
-        for instant, expected in [
-            (datetime(2026, 1, 1, 23, 30, tzinfo=timezone.utc), date(2026, 1, 2)),
-            (datetime(2026, 7, 1, 22, 30, tzinfo=timezone.utc), date(2026, 7, 2)),
-            (datetime(2026, 3, 29, 0, 30, tzinfo=timezone.utc), date(2026, 3, 29)),
-        ]:
-            with (
-                self.subTest(instant=instant),
-                patch("ba_jobsuche.cli.ZoneInfo", side_effect=KeyError),
-            ):
-                self.assertEqual(berlin_date(instant), expected)
 
     def test_oldest_valid_date_precedes_unknown_without_filter(self):
         entries = [
