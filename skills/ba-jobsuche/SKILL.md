@@ -22,7 +22,7 @@ Wiederhole `--was` und `--wo` für alle Kombinationen; ohne `--wo` wird je Suchb
 
 `--homeoffice` akzeptiert optional `0%`, `25%`, `50%` oder `100%`; ohne Wert gilt `100%`.
 
-Ergänze bei ausdrücklichem Wunsch `--homeoffice-ohne-prozent einbeziehen` oder `--homeoffice-ohne-prozent ausschliessen`. Die Option benötigt `--homeoffice`; ohne sie bleibt das bisherige Verhalten erhalten. Einbeziehen berücksichtigt auch Homeoffice nach Vereinbarung ohne konkreten Anteil. Diese Stellen erfüllen den gewählten Prozentwert nicht nachweislich; Bedingungen in den Details prüfen. Die Wirkung des API-Filters ist nicht verbindlich zugesichert.
+Ergänze bei ausdrücklichem Wunsch `--homeoffice-ohne-prozent einbeziehen` oder `--homeoffice-ohne-prozent ausschliessen`. Die Option benötigt `--homeoffice`. Bei einer Suche mit `--homeoffice` und ohne diese Option werden Stellen ohne Prozentangabe nach dem beobachteten Verhalten der API ausgeschlossen. Einbeziehen berücksichtigt auch Homeoffice nach Vereinbarung ohne konkreten Anteil. Diese Stellen erfüllen den gewählten Prozentwert nicht nachweislich; Bedingungen in den Details prüfen. Die Wirkung des API-Filters ist nicht verbindlich zugesichert.
 
 `--veroeffentlichtseit` begrenzt auf Wunsch das Veröffentlichungsalter auf eine ganze Zahl von 0 bis 100 Tagen, zum Beispiel `--veroeffentlichtseit 7`. Die API-Semantik ist nicht garantiert; passende Treffer können fehlen.
 
