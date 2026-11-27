@@ -57,6 +57,10 @@
                 "100%"
               ],
               "description": "Homeoffice-Filter als Prozentwert."
+            },
+            "homeoffice_ohne_prozent": {
+              "enum": ["einbeziehen", "ausschliessen"],
+              "description": "Umgang mit Homeoffice-Stellen ohne Prozentangabe."
             }
           },
           "additionalProperties": false,

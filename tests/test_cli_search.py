@@ -161,6 +161,86 @@ class CliTests(unittest.TestCase):
                 )
                 fetch.assert_not_called()
 
+    def test_unspecified_homeoffice_option_controls_api_and_output(self):
+        for percentage in ("0%", "25%", "50%", "100%"):
+            for choice, suffix in (("einbeziehen", ";nv_true"), ("ausschliessen", "")):
+                with (
+                    self.subTest(percentage=percentage, choice=choice),
+                    patch(
+                        "ba_jobsuche.cli.fetch_search",
+                        return_value={"maxErgebnisse": 0},
+                    ) as fetch,
+                    contextlib.redirect_stdout(io.StringIO()) as out,
+                ):
+                    status = main(
+                        [
+                            "search",
+                            "--was",
+                            "Java",
+                            "--was",
+                            "Python",
+                            "--wo",
+                            "Berlin",
+                            "--wo",
+                            "Bonn",
+                            "--homeoffice",
+                            percentage,
+                            "--homeoffice-ohne-prozent",
+                            choice,
+                        ]
+                    )
+                self.assertEqual(status, 0)
+                self.assertEqual(
+                    json.loads(out.getvalue())["query"]["homeoffice_ohne_prozent"],
+                    choice,
+                )
+                self.assertEqual(len(fetch.call_args_list), 4)
+                for call in fetch.call_args_list:
+                    self.assertEqual(
+                        call.args[0]["homeoffice"],
+                        f"prozentual_{percentage[:-1]}{suffix}",
+                    )
+
+    def test_unspecified_homeoffice_requires_filter_and_valid_choice(self):
+        for args in (
+            ["--homeoffice-ohne-prozent", "einbeziehen"],
+            ["--homeoffice", "--homeoffice-ohne-prozent", "invalid"],
+        ):
+            with (
+                self.subTest(args=args),
+                patch("ba_jobsuche.cli.fetch_search") as fetch,
+                contextlib.redirect_stdout(io.StringIO()) as out,
+            ):
+                self.assertEqual(main(["search", "--was", "Python", *args]), 1)
+                self.assertEqual(
+                    json.loads(out.getvalue())["error"]["code"], "invalid_input"
+                )
+                fetch.assert_not_called()
+
+    def test_unspecified_homeoffice_with_default_percentage(self):
+        with (
+            patch(
+                "ba_jobsuche.cli.fetch_search", return_value={"maxErgebnisse": 0}
+            ) as fetch,
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            self.assertEqual(
+                main(
+                    [
+                        "search",
+                        "--was",
+                        "Python",
+                        "--homeoffice",
+                        "--homeoffice-ohne-prozent",
+                        "einbeziehen",
+                    ]
+                ),
+                0,
+            )
+        self.assertEqual(
+            fetch.call_args.args[0]["homeoffice"], "prozentual_100;nv_true"
+        )
+
     def test_location_and_nonempty_result(self):
         out = io.StringIO()
         response = {"maxErgebnisse": 1, "ergebnisliste": [{"referenznummer": "A"}]}
