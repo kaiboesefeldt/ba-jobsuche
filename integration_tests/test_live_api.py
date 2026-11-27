@@ -50,7 +50,7 @@ class LiveApiTests(unittest.TestCase):
 
     def test_homeoffice_results_have_homeoffice_in_details(self):
         result = self.search("--homeoffice", "100%")
-        self.assertEqual(result["query"]["homeoffice"], "prozentual_100")
+        self.assertEqual(result["query"]["homeoffice"], "100%")
         for entry in result["results"]:
             with self.subTest(reference=entry["referenznummer"]):
                 detail = self.detail(entry["referenznummer"])

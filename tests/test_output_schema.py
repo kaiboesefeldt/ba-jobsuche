@@ -50,6 +50,8 @@ class OutputSchemaTests(unittest.TestCase):
                     "--wo",
                     "Rostock:50",
                     "--homeoffice",
+                    "--homeoffice-ohne-prozent",
+                    "einbeziehen",
                     "--veroeffentlichtseit",
                     "7",
                 ],
@@ -83,6 +85,24 @@ class OutputSchemaTests(unittest.TestCase):
             self.validator.validate(example)
         self.assertTrue(examples[0]["results"])
         self.assertTrue(examples[1]["result"])
+
+    def test_homeoffice_choices_produce_schema_valid_success(self):
+        for choice in ("einbeziehen", "ausschliessen"):
+            with self.subTest(choice=choice):
+                output = self.output(
+                    [
+                        "search",
+                        "--was",
+                        "x",
+                        "--homeoffice",
+                        "--homeoffice-ohne-prozent",
+                        choice,
+                    ],
+                    {"maxErgebnisse": 0},
+                )
+                self.assertTrue(output["ok"])
+                self.assertEqual(output["query"]["homeoffice_ohne_prozent"], choice)
+                self.validator.validate(output)
 
     def test_invalid_envelopes_are_rejected(self):
         valid = self.output(["search", "--was", "x"], {"maxErgebnisse": 0})

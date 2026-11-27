@@ -59,6 +59,20 @@ def display_publication_filter(age: int | None) -> dict[str, int]:
     return {} if age is None else {"veroeffentlichtseit": age}
 
 
+def prepare_homeoffice(
+    args: argparse.Namespace, output_query: dict[str, Any], common: dict[str, Any]
+) -> None:
+    if args.homeoffice_ohne_prozent and not args.homeoffice:
+        raise ValueError("The home office percentage option requires --homeoffice")
+    if args.homeoffice:
+        output_query["homeoffice"] = args.homeoffice
+        common["homeoffice"] = f"prozentual_{args.homeoffice[:-1]}"
+    if args.homeoffice_ohne_prozent:
+        output_query["homeoffice_ohne_prozent"] = args.homeoffice_ohne_prozent
+        if args.homeoffice_ohne_prozent == "einbeziehen":
+            common["homeoffice"] += ";nv_true"
+
+
 def prepare_search(
     args: argparse.Namespace,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
@@ -74,9 +88,7 @@ def prepare_search(
     common = publication_filter(args.veroeffentlichtseit)
     output_query.update(display_publication_filter(args.veroeffentlichtseit))
     common["sort"] = "veroeffdatum"
-    if args.homeoffice:
-        output_query["homeoffice"] = args.homeoffice
-        common["homeoffice"] = f"prozentual_{args.homeoffice[:-1]}"
+    prepare_homeoffice(args, output_query, common)
     api_queries = [
         {"was": term, **location, **common}
         for term, location in product(args.was, parsed_locations)
@@ -149,6 +161,11 @@ def main(argv: list[str] | None = None) -> int:
         const="100%",
         choices=("0%", "25%", "50%", "100%"),
         help="Home office filter: 0%%, 25%%, 50%%, 100%% (default: 100%%)",
+    )
+    find.add_argument(
+        "--homeoffice-ohne-prozent",
+        choices=("einbeziehen", "ausschliessen"),
+        help="Include or exclude home office offers without a percentage; requires --homeoffice",
     )
     find.add_argument(
         "--size",
